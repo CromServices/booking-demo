@@ -75,7 +75,13 @@ export function DayStrip({
       ) : null}
       <div
         ref={scrollerRef}
-        className={overflow ? "day-strip can-scroll" : "day-strip"}
+        className={[
+          "day-strip",
+          overflow && !atStart ? "fade-left" : "",
+          overflow && !atEnd ? "fade-right" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         role="tablist"
         aria-label="Days in the next two weeks"
         onKeyDown={onKeyDown}

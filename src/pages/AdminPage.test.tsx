@@ -23,9 +23,12 @@ describe("demo desk", () => {
 
     const quinn = () => screen.getByRole("article", { name: /Booking for Sample Quinn at/ });
     const before = quinn().getAttribute("aria-label");
+    expect(
+      screen.getAllByRole("heading", { name: /^(Pending|Approved|Cancelled)$/ }).map((heading) => heading.textContent),
+    ).toEqual(["Pending", "Approved", "Cancelled"]);
 
     await user.click(screen.getByRole("button", { name: "Approve Sample Quinn" }));
-    expect(await within(quinn()).findByText("Confirmed")).toBeInTheDocument();
+    expect(await within(quinn()).findByText("Approved")).toBeInTheDocument();
     expect((await store.listBookings()).find((booking) => booking.customerName === "Sample Quinn")?.status).toBe(
       "confirmed",
     );

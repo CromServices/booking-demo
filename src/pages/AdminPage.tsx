@@ -25,9 +25,11 @@ const EMPTY_DRAFT: ServiceDraft = {
 const FILTERS = ["all", "pending", "confirmed", "cancelled"] as const;
 type Filter = (typeof FILTERS)[number];
 
+const STATUS_ORDER: BookingStatus[] = ["pending", "confirmed", "cancelled"];
+
 const STATUS_LABEL: Record<BookingStatus, string> = {
   pending: "Pending",
-  confirmed: "Confirmed",
+  confirmed: "Approved",
   cancelled: "Cancelled",
 };
 
@@ -52,6 +54,10 @@ export function AdminPage() {
     .filter((booking) => filter === "all" || booking.status === filter)
     .slice()
     .sort((a, b) => a.slotStart.localeCompare(b.slotStart) || a.customerName.localeCompare(b.customerName));
+  const groups = STATUS_ORDER.map((status) => ({
+    status,
+    items: visible.filter((booking) => booking.status === status),
+  })).filter((group) => group.items.length > 0);
 
   const rescheduleBooking = bookings.find((booking) => booking.id === rescheduleId) ?? null;
   const openSlots = useMemo(() => {
@@ -162,38 +168,51 @@ export function AdminPage() {
             </p>
           ) : null}
           {ready && visible.length === 0 ? <p>No sample bookings in this view.</p> : null}
-          <ul className="booking-list">
-            {visible.map((booking) => (
-              <li key={booking.id}>
-                <BookingCard
-                  booking={booking}
-                  busy={actionId === booking.id}
-                  rescheduleOpen={rescheduleId === booking.id}
-                  nextSlot={nextSlot}
-                  openSlots={openSlots}
-                  onApprove={() => void run(booking.id, () => store.updateBooking(booking.id, { status: "confirmed" }))}
-                  onCancel={() => void run(booking.id, () => store.updateBooking(booking.id, { status: "cancelled" }))}
-                  onToggleReschedule={() => {
-                    setRescheduleId((current) => (current === booking.id ? null : booking.id));
-                    setNextSlot("");
-                    setActionError("");
-                  }}
-                  onNextSlot={setNextSlot}
-                  onSaveReschedule={() => {
-                    if (!nextSlot) {
-                      setActionError("Choose an open time.");
-                      return;
-                    }
-                    void run(booking.id, async () => {
-                      await store.updateBooking(booking.id, { slotStart: nextSlot });
-                      setRescheduleId(null);
-                      setNextSlot("");
-                    });
-                  }}
-                />
-              </li>
+          <div className="booking-groups">
+            {groups.map((group) => (
+              <section key={group.status} className="status-group" aria-labelledby={`status-${group.status}`}>
+                <h3 id={`status-${group.status}`} className="status-group-heading">
+                  {STATUS_LABEL[group.status]}
+                </h3>
+                <ul className="booking-list">
+                  {group.items.map((booking) => (
+                    <li key={booking.id}>
+                      <BookingCard
+                        booking={booking}
+                        busy={actionId === booking.id}
+                        rescheduleOpen={rescheduleId === booking.id}
+                        nextSlot={nextSlot}
+                        openSlots={openSlots}
+                        onApprove={() =>
+                          void run(booking.id, () => store.updateBooking(booking.id, { status: "confirmed" }))
+                        }
+                        onCancel={() =>
+                          void run(booking.id, () => store.updateBooking(booking.id, { status: "cancelled" }))
+                        }
+                        onToggleReschedule={() => {
+                          setRescheduleId((current) => (current === booking.id ? null : booking.id));
+                          setNextSlot("");
+                          setActionError("");
+                        }}
+                        onNextSlot={setNextSlot}
+                        onSaveReschedule={() => {
+                          if (!nextSlot) {
+                            setActionError("Choose an open time.");
+                            return;
+                          }
+                          void run(booking.id, async () => {
+                            await store.updateBooking(booking.id, { slotStart: nextSlot });
+                            setRescheduleId(null);
+                            setNextSlot("");
+                          });
+                        }}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </section>
             ))}
-          </ul>
+          </div>
         </section>
 
         <section aria-labelledby="services-heading">

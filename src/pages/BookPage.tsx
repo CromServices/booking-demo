@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { DayStrip } from "../components/DayStrip";
 import { Field } from "../components/Field";
 import { useDocumentTitle } from "../components/useDocumentTitle";
 import { formatAud, formatClock, formatDuration, formatSlotLong } from "../domain/format";
@@ -41,6 +42,12 @@ export function BookPage() {
   const [confirmCode, setConfirmCode] = useState("");
   const [confirmError, setConfirmError] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+
+  useEffect(() => {
+    if (!pending) return;
+    const id = confirmed ? "lodged-heading" : "email-heading";
+    document.getElementById(id)?.scrollIntoView?.({ block: "start" });
+  }, [pending, confirmed]);
 
   useEffect(() => {
     if (serviceTouched || !requested) return;
@@ -95,7 +102,16 @@ export function BookPage() {
       const order = ["name", "mobile", "email", "serviceId", "slotStart", "notes"] as const;
       const first = order.find((key) => nextErrors[key]);
       const focusId = first === "serviceId" ? "service-choice" : first === "slotStart" ? "open-times" : first;
-      window.setTimeout(() => document.getElementById(focusId ?? "")?.focus(), 0);
+      const fieldError = first === "name" || first === "mobile" || first === "email" || first === "notes";
+      window.setTimeout(() => {
+        const target = document.getElementById(focusId ?? "");
+        const anchor = fieldError
+          ? document.querySelector<HTMLElement>(".selection") ??
+            document.querySelector<HTMLElement>(".booking-form")
+          : target;
+        anchor?.scrollIntoView?.({ block: "start" });
+        target?.focus({ preventScroll: true });
+      }, 0);
       return;
     }
     setBusy(true);
@@ -296,28 +312,11 @@ export function BookPage() {
                     <i className="swatch taken" /> Taken
                   </span>
                 </div>
-                <div className="day-strip" role="tablist" aria-label="Days in the next two weeks">
-                  {days.map((day) => {
-                    const openCount = day.slots.filter((slot) => slot.available).length;
-                    return (
-                      <button
-                        key={day.dateKey}
-                        type="button"
-                        role="tab"
-                        id={`day-${day.dateKey}`}
-                        aria-selected={day.dateKey === activeDay.dateKey}
-                        aria-controls="slot-panel"
-                        disabled={day.closed}
-                        aria-label={day.closed ? `${day.longLabel}, closed` : day.longLabel}
-                        onClick={() => setDayKey(day.dateKey)}
-                      >
-                        <span className="day-wd">{day.weekdayShort}</span>
-                        <span className="day-num">{day.dayNum}</span>
-                        <span className="day-sub">{day.closed ? "Closed" : `${openCount} open`}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <DayStrip
+                  days={days}
+                  activeDateKey={activeDay.dateKey}
+                  onSelect={setDayKey}
+                />
                 <div
                   role="tabpanel"
                   id="slot-panel"

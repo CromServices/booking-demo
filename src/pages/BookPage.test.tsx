@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import { bookingMessages } from "../domain/validation";
@@ -67,6 +67,8 @@ describe("booking form", () => {
     await user.click(screen.getByRole("button", { name: "Request this time" }));
 
     const email = await screen.findByRole("article", { name: "Simulated confirmation email" });
+    const codeField = screen.getByLabelText("Code from the sample email");
+    await waitFor(() => expect(codeField).toHaveFocus());
     expect(email).toHaveTextContent(/not sent/i);
     expect(email).toHaveTextContent("test.visitor@example.com");
     const code = within(email).getByRole("status", { name: "Confirmation code" }).textContent ?? "";

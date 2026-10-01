@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useLayoutEffect, type ReactNode } from "react";
 import { HashLink } from "../hashRouter";
 import { Mark } from "./Mark";
 
@@ -6,6 +6,20 @@ const BANNER =
   "Demo site by Crom Services. Not a real business. Sample data only. Emails are simulated.";
 
 export function Layout({ children }: { children: ReactNode }) {
+  useLayoutEffect(() => {
+    const header = document.querySelector<HTMLElement>(".site-header");
+    if (!header) return;
+    const apply = () => {
+      const height = Math.ceil(header.getBoundingClientRect().height);
+      document.documentElement.style.setProperty("--header-offset", `${height + 16}px`);
+    };
+    apply();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(apply);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
       <a className="skip" href="#content">

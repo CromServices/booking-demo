@@ -51,7 +51,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </main>
       <footer className="site-footer">
         <div className="wrap footer-grid">
-          <p>Crom Services · Perth WA · Remote across Australia</p>
+          <p>Crom Services · Australia</p>
           <p>
             <a href="mailto:cromservices@gmail.com">cromservices@gmail.com</a>
           </p>

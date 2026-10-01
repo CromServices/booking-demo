@@ -45,8 +45,12 @@ export function BookPage() {
 
   useEffect(() => {
     if (!pending) return;
-    const id = confirmed ? "lodged-heading" : "email-heading";
-    document.getElementById(id)?.scrollIntoView?.({ block: "start" });
+    if (confirmed) {
+      document.getElementById("lodged-heading")?.scrollIntoView?.({ block: "start" });
+      return;
+    }
+    document.getElementById("email-heading")?.scrollIntoView?.({ block: "start" });
+    document.getElementById("confirm-code")?.focus({ preventScroll: true });
   }, [pending, confirmed]);
 
   useEffect(() => {
@@ -102,12 +106,11 @@ export function BookPage() {
       const order = ["name", "mobile", "email", "serviceId", "slotStart", "notes"] as const;
       const first = order.find((key) => nextErrors[key]);
       const focusId = first === "serviceId" ? "service-choice" : first === "slotStart" ? "open-times" : first;
-      const fieldError = first === "name" || first === "mobile" || first === "email" || first === "notes";
+      const showDetails = first === "name" || first === "mobile" || first === "email";
       window.setTimeout(() => {
         const target = document.getElementById(focusId ?? "");
-        const anchor = fieldError
-          ? document.querySelector<HTMLElement>(".selection") ??
-            document.querySelector<HTMLElement>(".booking-form")
+        const anchor = showDetails
+          ? document.querySelector<HTMLElement>(".booking-form") ?? target
           : target;
         anchor?.scrollIntoView?.({ block: "start" });
         target?.focus({ preventScroll: true });

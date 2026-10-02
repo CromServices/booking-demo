@@ -1,4 +1,7 @@
-![Saltbush Dog Grooming](public/saltbush-lockup-light.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/saltbush-lockup-dark.svg">
+  <img alt="Saltbush Dog Grooming" src="public/saltbush-lockup-light-transparent.svg" width="335">
+</picture>
 
 # Booking demo
 

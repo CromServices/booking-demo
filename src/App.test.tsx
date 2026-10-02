@@ -14,5 +14,10 @@ describe("hash routing", () => {
       "href",
       "mailto:cromservices@gmail.com",
     );
+    const credit = screen.getByRole("link", { name: "Built by Crom Services" });
+    expect(credit).toHaveAttribute("href", "https://cromservices.com.au");
+    expect(credit.querySelector("img")?.getAttribute("src")).toMatch(
+      /^https:\/\/cromservices\.com\.au\/brand\/credit\/crom-credit-mark-ink@1x\.png$/,
+    );
   });
 });

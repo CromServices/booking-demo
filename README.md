@@ -1,5 +1,5 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="public/saltbush-lockup-dark.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="public/saltbush-lockup-dark-transparent.svg">
   <img alt="Saltbush Dog Grooming" src="public/saltbush-lockup-light-transparent.svg" width="335">
 </picture>
 

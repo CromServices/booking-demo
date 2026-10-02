@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { maskEmail, maskMobile } from "../domain/mask";
 import { Field } from "../components/Field";
 import { useDocumentTitle } from "../components/useDocumentTitle";
@@ -34,6 +34,18 @@ const STATUS_LABEL: Record<BookingStatus, string> = {
   cancelled: "Cancelled",
 };
 
+function focusAfterBookingDelete(nextId: string | null, previousId: string | null) {
+  const targetId = nextId ?? previousId;
+  const button = targetId
+    ? document.getElementById(`booking-actions-${targetId}`)?.querySelector("button")
+    : null;
+  if (button instanceof HTMLButtonElement) {
+    button.focus();
+    return;
+  }
+  document.getElementById("bookings-heading")?.focus();
+}
+
 export function AdminPage() {
   const store = useBookingStore();
   const { ready, services, bookings } = useSnapshot();
@@ -49,6 +61,7 @@ export function AdminPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [removeId, setRemoveId] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
   const upcoming = bookings.filter((booking) => isOnOrAfterStudioDay(booking.slotStart, store.now()));
   const visible = upcoming
@@ -148,9 +161,14 @@ export function AdminPage() {
       <div className="admin-grid">
         <section aria-labelledby="bookings-heading">
           <div className="section-head">
-            <h2 id="bookings-heading">Upcoming bookings</h2>
+            <h2 id="bookings-heading" tabIndex={-1}>
+              Upcoming bookings
+            </h2>
             <p>From today, grouped by status.</p>
           </div>
+          <p className="visually-hidden" role="status">
+            {statusMessage}
+          </p>
           <div className="filter-row" role="group" aria-label="Filter by status">
             {FILTERS.map((item) => (
               <button
@@ -190,12 +208,18 @@ export function AdminPage() {
                         onCancel={() =>
                           void run(booking.id, () => store.updateBooking(booking.id, { status: "cancelled" }))
                         }
-                        onDelete={() =>
+                        onDelete={() => {
+                          const order = groups.flatMap((group) => group.items);
+                          const index = order.findIndex((item) => item.id === booking.id);
+                          const nextId = order[index + 1]?.id ?? null;
+                          const previousId = index > 0 ? (order[index - 1]?.id ?? null) : null;
+                          focusAfterBookingDelete(nextId, previousId);
                           void run(booking.id, async () => {
                             await store.deleteBooking(booking.id);
                             if (rescheduleId === booking.id) setRescheduleId(null);
-                          })
-                        }
+                            setStatusMessage(`Deleted the booking for ${booking.customerName}.`);
+                          });
+                        }}
                         onToggleReschedule={() => {
                           setRescheduleId((current) => (current === booking.id ? null : booking.id));
                           setNextSlot("");
@@ -434,9 +458,17 @@ function BookingCard({
   const dog = dogName && dogSize ? `${dogName} · ${dogSize}` : dogName || dogSize || "Not recorded";
   const [revealed, setRevealed] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const promptRef = useRef<HTMLDivElement>(null);
+  const deleteButtonRef = useRef<HTMLButtonElement>(null);
   const contactId = `contact-${booking.id}`;
+  const promptId = `delete-prompt-${booking.id}`;
   const mobile = typeof booking.mobile === "string" ? booking.mobile : "";
   const email = typeof booking.email === "string" ? booking.email : "";
+
+  useEffect(() => {
+    if (confirmDelete) promptRef.current?.focus();
+  }, [confirmDelete]);
+
   return (
     <article className="booking-card" aria-label={`Booking for ${booking.customerName} at ${when}`}>
       <header className="booking-head">
@@ -465,7 +497,7 @@ function BookingCard({
           </dd>
           <button
             type="button"
-            className="button button-ghost"
+            className="details-toggle"
             aria-expanded={revealed}
             aria-controls={contactId}
             onClick={() => setRevealed((current) => !current)}
@@ -484,41 +516,53 @@ function BookingCard({
           <dd>{booking.emailVerified ? "Confirmed on screen" : "Not confirmed yet"}</dd>
         </div>
       </dl>
-      <div className="booking-actions">
-        {booking.status === "pending" ? (
-          <button type="button" className="button" aria-label={`Approve ${booking.customerName}`} disabled={busy} onClick={onApprove}>
-            Approve
-          </button>
-        ) : null}
-        {booking.status !== "cancelled" ? (
-          <button type="button" className="button button-ghost" aria-label={`Cancel ${booking.customerName}`} disabled={busy} onClick={onCancel}>
-            Cancel
-          </button>
-        ) : null}
-        <button
-          type="button"
-          className="button button-danger"
-          aria-label={`Delete booking for ${booking.customerName}`}
-          disabled={busy}
-          onClick={() => setConfirmDelete(true)}
-        >
-          Delete booking
-        </button>
-        {booking.status !== "cancelled" ? (
+      <div className="booking-actions" id={`booking-actions-${booking.id}`}>
+        <div className="booking-actions-main">
+          {booking.status === "pending" ? (
+            <button type="button" className="button" aria-label={`Approve ${booking.customerName}`} disabled={busy} onClick={onApprove}>
+              Approve
+            </button>
+          ) : null}
+          {booking.status !== "cancelled" ? (
+            <button type="button" className="button button-ghost" aria-label={`Cancel ${booking.customerName}`} disabled={busy} onClick={onCancel}>
+              Cancel
+            </button>
+          ) : null}
+          {booking.status !== "cancelled" ? (
+            <button
+              type="button"
+              className="button button-ghost"
+              aria-label={`Reschedule ${booking.customerName}`}
+              aria-expanded={rescheduleOpen}
+              disabled={busy}
+              onClick={onToggleReschedule}
+            >
+              Reschedule
+            </button>
+          ) : null}
+        </div>
+        <div className="booking-actions-delete">
           <button
+            ref={deleteButtonRef}
             type="button"
-            className="button button-ghost"
-            aria-label={`Reschedule ${booking.customerName}`}
-            aria-expanded={rescheduleOpen}
+            className="button button-danger"
+            aria-label={`Delete booking for ${booking.customerName}`}
             disabled={busy}
-            onClick={onToggleReschedule}
+            onClick={() => setConfirmDelete(true)}
           >
-            Reschedule
+            Delete booking
           </button>
-        ) : null}
+        </div>
       </div>
       {confirmDelete ? (
-        <div className="confirm-inline" role="group" aria-label={`Confirm deletion of ${booking.customerName}`}>
+        <div
+          ref={promptRef}
+          className="confirm-inline"
+          role="group"
+          tabIndex={-1}
+          id={promptId}
+          aria-label={`Confirm deletion of ${booking.customerName}`}
+        >
           <p>Delete this booking?</p>
           <div className="hero-actions">
             <button
@@ -527,12 +571,19 @@ function BookingCard({
               disabled={busy}
               onClick={() => {
                 onDelete();
-                setConfirmDelete(false);
               }}
             >
               Yes, delete
             </button>
-            <button type="button" className="button button-ghost" disabled={busy} onClick={() => setConfirmDelete(false)}>
+            <button
+              type="button"
+              className="button button-ghost"
+              disabled={busy}
+              onClick={() => {
+                setConfirmDelete(false);
+                deleteButtonRef.current?.focus();
+              }}
+            >
               Keep it
             </button>
           </div>

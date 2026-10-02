@@ -138,6 +138,19 @@ svg {
   color: inherit;
 }
 
+.brand-lockup {
+  display: block;
+  height: 48px;
+  width: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .brand-lockup {
+    height: 44px;
+  }
+}
+
 .brand strong {
   display: block;
   font-family: Fraunces, Georgia, serif;

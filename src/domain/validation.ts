@@ -1,32 +1,33 @@
-import { DOG_SIZES, type DogSize } from "../store/types";
+import type { ExtraField } from "../config/types";
 
 export type BookingFormValues = {
   name: string;
-  dogName: string;
-  dogSize: DogSize | "";
   mobile: string;
   email: string;
   serviceId: string;
   slotStart: string;
   notes: string;
+  extras: Record<string, string>;
 };
 
-export type BookingFormErrors = Partial<Record<keyof BookingFormValues, string>>;
+export type BookingFormErrors = Partial<{
+  name: string;
+  mobile: string;
+  email: string;
+  serviceId: string;
+  slotStart: string;
+  notes: string;
+  extras: Record<string, string>;
+}>;
 
 export const bookingMessages = {
   name: "Enter the name for this booking.",
-  dogName: "Enter the dog's name.",
-  dogSize: "Choose a size.",
   mobile: "Enter an Australian mobile, like 0412 345 678.",
   email: "Enter an email address so the sample confirmation can be addressed to you.",
   service: "Choose a service.",
   slot: "Choose an open time.",
   notes: "Keep notes to 400 characters or fewer.",
 } as const;
-
-export function isDogSize(value: unknown): value is DogSize {
-  return typeof value === "string" && (DOG_SIZES as readonly string[]).includes(value);
-}
 
 export function normalizeAuMobile(input: string): string | null {
   const compact = input.replace(/[\s()-]/g, "");
@@ -38,18 +39,29 @@ export function normalizeAuMobile(input: string): string | null {
   return `${national.slice(0, 4)} ${national.slice(4, 7)} ${national.slice(7)}`;
 }
 
-export function validateBookingForm(values: BookingFormValues): BookingFormErrors {
+function validateExtra(field: ExtraField, raw: string): string | undefined {
+  const value = raw.trim();
+  if (field.kind === "select") {
+    if (!value) return field.required ? field.messages.required : undefined;
+    if (field.options && !field.options.includes(value)) return field.messages.invalid;
+    return undefined;
+  }
+  if (!value) return field.required ? field.messages.required : undefined;
+  if (field.pattern) {
+    const pattern = new RegExp(field.pattern, field.patternFlags);
+    if (!pattern.test(value)) return field.messages.invalid;
+  }
+  return undefined;
+}
+
+export function validateBookingForm(
+  values: BookingFormValues,
+  fields: readonly ExtraField[],
+): BookingFormErrors {
   const errors: BookingFormErrors = {};
   const name = values.name.trim();
   if (!/^[\p{L}][\p{L}\p{M}'’.\- ]{1,79}$/u.test(name)) {
     errors.name = bookingMessages.name;
-  }
-  const dogName = values.dogName.trim();
-  if (!/^[\p{L}][\p{L}\p{M}'’.\- ]{0,39}$/u.test(dogName)) {
-    errors.dogName = bookingMessages.dogName;
-  }
-  if (!isDogSize(values.dogSize)) {
-    errors.dogSize = bookingMessages.dogSize;
   }
   if (!normalizeAuMobile(values.mobile)) {
     errors.mobile = bookingMessages.mobile;
@@ -58,14 +70,32 @@ export function validateBookingForm(values: BookingFormValues): BookingFormError
   if (email.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = bookingMessages.email;
   }
+  const extraErrors: Record<string, string> = {};
+  for (const field of fields) {
+    const message = validateExtra(field, values.extras[field.id] ?? "");
+    if (message) extraErrors[field.id] = message;
+  }
+  if (Object.keys(extraErrors).length > 0) errors.extras = extraErrors;
   if (!values.serviceId) errors.serviceId = bookingMessages.service;
   if (!values.slotStart) errors.slotStart = bookingMessages.slot;
   if (values.notes.trim().length > 400) errors.notes = bookingMessages.notes;
   return errors;
 }
 
+export function firstErrorMessage(errors: BookingFormErrors): string {
+  for (const key of ["name", "mobile", "email", "serviceId", "slotStart", "notes"] as const) {
+    const message = errors[key];
+    if (message) return message;
+  }
+  const extra = errors.extras ? Object.values(errors.extras).find(Boolean) : undefined;
+  return extra ?? "Check the booking details.";
+}
+
 export function hasErrors(errors: object): boolean {
-  return Object.keys(errors).length > 0;
+  return Object.values(errors).some((value) => {
+    if (value && typeof value === "object") return Object.keys(value as object).length > 0;
+    return Boolean(value);
+  });
 }
 
 export type ServiceDraft = {

@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
+import { saltbush } from "../config/saltbush";
 import { bookingMessages } from "../domain/validation";
 import { makeStore } from "../test/fixtures";
 import { renderAt } from "../test/render";
@@ -28,10 +29,12 @@ describe("booking form", () => {
     await user.click(screen.getByRole("button", { name: "Request this time" }));
 
     const alertText = () => screen.getAllByRole("alert").map((element) => element.textContent);
+    const dogName = saltbush.extraFields.find((field) => field.id === "dogName")?.messages.required;
+    const dogSize = saltbush.extraFields.find((field) => field.id === "dogSize")?.messages.required;
     for (const message of [
       bookingMessages.name,
-      bookingMessages.dogName,
-      bookingMessages.dogSize,
+      dogName,
+      dogSize,
       bookingMessages.mobile,
       bookingMessages.email,
       bookingMessages.service,
@@ -102,8 +105,7 @@ describe("booking form", () => {
     expect(saved).toMatchObject({
       email: "test.visitor@example.com",
       mobile: "0412 345 678",
-      dogName: "Noodle",
-      dogSize: "Small",
+      extras: { dogName: "Noodle", dogSize: "Small" },
       status: "pending",
       emailVerified: true,
       notes: "Walkthrough sample",

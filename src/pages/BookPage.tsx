@@ -1,40 +1,47 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { useSiteConfig } from "../config/context";
+import type { ExtraField } from "../config/types";
+import { fillTemplate } from "../config/template";
 import { DayStrip } from "../components/DayStrip";
 import { Field } from "../components/Field";
 import { useDocumentTitle } from "../components/useDocumentTitle";
 import { formatAud, formatClock, formatDuration, formatSlotLong } from "../domain/format";
+import { calendarWindow } from "../domain/hours";
 import { buildCalendar } from "../domain/slots";
 import { studioMinutes } from "../domain/time";
 import {
   hasErrors,
-  isDogSize,
   validateBookingForm,
   type BookingFormErrors,
   type BookingFormValues,
 } from "../domain/validation";
 import { HashLink, useHashLocation } from "../hashRouter";
 import { useBookingStore, useSnapshot } from "../store/context";
-import type { Booking, DogSize } from "../store/types";
+import type { Booking } from "../store/types";
 
-const EMPTY: BookingFormValues = {
-  name: "",
-  dogName: "",
-  dogSize: "",
-  mobile: "",
-  email: "",
-  serviceId: "",
-  slotStart: "",
-  notes: "",
-};
+function emptyValues(fields: readonly ExtraField[]): BookingFormValues {
+  return {
+    name: "",
+    mobile: "",
+    email: "",
+    serviceId: "",
+    slotStart: "",
+    notes: "",
+    extras: Object.fromEntries(fields.map((field) => [field.id, ""])),
+  };
+}
 
 export function BookPage() {
+  const config = useSiteConfig();
   const store = useBookingStore();
   const { ready, services, bookings } = useSnapshot();
   const { search } = useHashLocation();
   const requested = search.get("service") ?? "";
-  useDocumentTitle("Book a visit · Saltbush demo");
+  useDocumentTitle(config.titles.book);
+  const copy = config.book;
+  const schedule = calendarWindow(config);
 
-  const [values, setValues] = useState<BookingFormValues>(EMPTY);
+  const [values, setValues] = useState<BookingFormValues>(() => emptyValues(config.extraFields));
   const [errors, setErrors] = useState<BookingFormErrors>({});
   const [showErrors, setShowErrors] = useState(false);
   const [serviceTouched, setServiceTouched] = useState(false);
@@ -65,9 +72,13 @@ export function BookPage() {
   }, [requested, services, serviceTouched]);
 
   function update(partial: Partial<BookingFormValues>) {
-    const next = { ...values, ...partial };
+    const next = {
+      ...values,
+      ...partial,
+      extras: partial.extras ? { ...values.extras, ...partial.extras } : values.extras,
+    };
     setValues(next);
-    if (showErrors) setErrors(validateBookingForm(next));
+    if (showErrors) setErrors(validateBookingForm(next, config.extraFields));
   }
 
   const activeServices = services.filter((service) => service.active);
@@ -77,6 +88,7 @@ export function BookPage() {
         now: store.now(),
         durationMinutes: selectedService.durationMinutes,
         bookings,
+        ...schedule,
       })
     : [];
   const activeDay =
@@ -93,51 +105,46 @@ export function BookPage() {
         now: store.now(),
         durationMinutes: service.durationMinutes,
         bookings,
+        ...schedule,
       }).some((day) => day.slots.some((slot) => slot.available && slot.start === slotStart));
       if (!stillOpen) slotStart = "";
     }
     update({ serviceId: id, slotStart });
   }
 
+  function fieldError(id: string): string | undefined {
+    if (config.extraFields.some((field) => field.id === id)) return errors.extras?.[id];
+    return errors[id as keyof Omit<BookingFormErrors, "extras">] as string | undefined;
+  }
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextErrors = validateBookingForm(values);
+    const nextErrors = validateBookingForm(values, config.extraFields);
     setErrors(nextErrors);
     setShowErrors(true);
     setFormError("");
     if (hasErrors(nextErrors)) {
-      const order = ["name", "mobile", "email", "dogName", "dogSize", "serviceId", "slotStart", "notes"] as const;
-      const first = order.find((key) => nextErrors[key]);
-      const focusId =
-        first === "serviceId"
-          ? "service-choice"
-          : first === "slotStart"
-            ? "open-times"
-            : first === "dogName"
-              ? "dog-name"
-              : first === "dogSize"
-                ? "dog-size"
-                : first;
+      const order = ["name", "mobile", "email", ...config.extraFields.map((field) => field.id), "serviceId", "slotStart", "notes"];
+      const first = order.find((key) => (key in (nextErrors.extras ?? {}) ? nextErrors.extras?.[key] : nextErrors[key as keyof BookingFormErrors]));
+      const focusId = first === "serviceId" ? "service-choice" : first === "slotStart" ? "open-times" : first;
       const showDetails =
-        first === "name" || first === "mobile" || first === "email" || first === "dogName" || first === "dogSize";
+        first === "name" ||
+        first === "mobile" ||
+        first === "email" ||
+        config.extraFields.some((field) => field.id === first);
       window.setTimeout(() => {
         const target = document.getElementById(focusId ?? "");
-        const anchor = showDetails
-          ? document.querySelector<HTMLElement>(".booking-form") ?? target
-          : target;
+        const anchor = showDetails ? document.querySelector<HTMLElement>(".booking-form") ?? target : target;
         anchor?.scrollIntoView?.({ block: "start" });
         target?.focus({ preventScroll: true });
       }, 0);
       return;
     }
-    if (!isDogSize(values.dogSize)) return;
-    const dogSize: DogSize = values.dogSize;
     setBusy(true);
     try {
       const booking = await store.createBooking({
         customerName: values.name,
-        dogName: values.dogName,
-        dogSize,
+        extras: Object.fromEntries(config.extraFields.map((field) => [field.id, values.extras[field.id] ?? ""])),
         mobile: values.mobile,
         email: values.email,
         serviceId: values.serviceId,
@@ -175,63 +182,68 @@ export function BookPage() {
     setConfirmed(false);
     setConfirmCode("");
     setConfirmError("");
-    setValues(EMPTY);
+    setValues(emptyValues(config.extraFields));
     setErrors({});
     setShowErrors(false);
     setServiceTouched(false);
     setDayKey(null);
   }
 
+  const pendingVars = pending
+    ? {
+        customerName: pending.customerName,
+        serviceName: pending.serviceName,
+        when: formatSlotLong(pending.slotStart),
+        price: formatAud(pending.priceCents),
+        duration: formatDuration(pending.durationMinutes),
+        ...pending.extras,
+      }
+    : null;
+
+  const selectionBits = [
+    selectedService?.name,
+    ...config.extraFields.map((field) => values.extras[field.id]?.trim()).filter(Boolean),
+    values.slotStart ? formatSlotLong(values.slotStart) : "",
+    selectedService ? formatAud(selectedService.priceCents) : "",
+  ].filter(Boolean);
+
   return (
     <>
       <section className="page-intro">
-        <p className="eyebrow">Online booking</p>
-        <h1>Book a visit</h1>
-        <p>
-          Choose a service, then an open time in the next two weeks. Taken times stay visible and
-          cannot be selected. Nothing on this page is emailed.
-        </p>
+        <p className="eyebrow">{copy.eyebrow}</p>
+        <h1>{copy.title}</h1>
+        <p>{copy.intro}</p>
       </section>
 
-      {!ready ? <p role="status">Loading sample data…</p> : null}
+      {!ready ? <p role="status">{config.loading}</p> : null}
 
-      {pending && !confirmed ? (
+      {pending && !confirmed && pendingVars ? (
         <section className="confirm-layout" aria-labelledby="email-heading">
           <div>
-            <h2 id="email-heading">Simulated confirmation email</h2>
-            <p>Read the code here. It is not sent to the address below.</p>
+            <h2 id="email-heading">{copy.emailHeading}</h2>
+            <p>{copy.emailIntro}</p>
           </div>
-          <article className="email-sheet" aria-label="Simulated confirmation email">
-            <p className="email-kicker">Simulated email · not sent</p>
+          <article className="email-sheet" aria-label={copy.emailArticleLabel}>
+            <p className="email-kicker">{copy.emailKicker}</p>
             <p>
-              <span className="meta">From</span> Saltbush Dog Grooming &lt;bookings@saltbush.example&gt;
+              <span className="meta">From</span> {copy.emailFrom}
             </p>
             <p>
               <span className="meta">To</span> {pending.email}
             </p>
             <p>
-              <span className="meta">Subject</span> Your sample confirmation code
+              <span className="meta">Subject</span> {copy.emailSubject}
             </p>
             <hr />
-            <p>Hello {pending.customerName},</p>
-            <p>
-              This message was not sent. It only exists on this demo page so you can confirm the
-              request for {pending.serviceName} for {pending.dogName} ({pending.dogSize}) on{" "}
-              {formatSlotLong(pending.slotStart)} (
-              {formatAud(pending.priceCents)}, {formatDuration(pending.durationMinutes)}).
-            </p>
-            <p className="meta">Confirmation code</p>
-            <output className="code-digits" aria-label="Confirmation code">
+            <p>{fillTemplate(copy.emailHello, pendingVars)}</p>
+            <p>{fillTemplate(copy.emailBody, pendingVars)}</p>
+            <p className="meta">{copy.codeLabel}</p>
+            <output className="code-digits" aria-label={copy.codeLabel}>
               {pending.confirmationCode}
             </output>
           </article>
-          <form className="stack-form" noValidate onSubmit={onConfirm} aria-label="Confirm the sample code">
-            <Field
-              id="confirm-code"
-              label="Code from the sample email"
-              error={confirmError}
-              hint="Type the 6-digit code shown above."
-            >
+          <form className="stack-form" noValidate onSubmit={onConfirm} aria-label={copy.confirmFormLabel}>
+            <Field id="confirm-code" label={copy.confirmLabel} error={confirmError} hint={copy.confirmHint}>
               {({ id, describedBy, invalid }) => (
                 <input
                   id={id}
@@ -246,26 +258,23 @@ export function BookPage() {
               )}
             </Field>
             <button className="button" type="submit" disabled={busy}>
-              {busy ? "Checking…" : "Confirm with code"}
+              {busy ? copy.confirmBusy : copy.confirmButton}
             </button>
           </form>
         </section>
       ) : null}
 
-      {confirmed && pending ? (
+      {confirmed && pending && pendingVars ? (
         <section className="success-card" aria-labelledby="lodged-heading">
-          <p className="eyebrow">Sample code matched</p>
-          <h2 id="lodged-heading">Request lodged</h2>
-          <p>
-            {pending.customerName} is pending in the demo desk for {pending.dogName} ({pending.dogSize}),{" "}
-            {pending.serviceName} on {formatSlotLong(pending.slotStart)}. No email was sent.
-          </p>
+          <p className="eyebrow">{copy.successEyebrow}</p>
+          <h2 id="lodged-heading">{copy.successHeading}</h2>
+          <p>{fillTemplate(copy.successBody, pendingVars)}</p>
           <div className="hero-actions">
             <HashLink to="/admin" className="button">
-              Open the demo desk
+              {copy.deskCta}
             </HashLink>
             <button className="button button-ghost" type="button" onClick={startAnother}>
-              Book another time
+              {copy.anotherCta}
             </button>
           </div>
         </section>
@@ -279,10 +288,10 @@ export function BookPage() {
             aria-describedby={errors.serviceId ? "service-error" : undefined}
           >
             <legend id="service-choice" tabIndex={-1}>
-              Service
+              {copy.serviceLegend}
             </legend>
             {ready && activeServices.length === 0 ? (
-              <p>The sample menu is empty. Restore it from the demo desk.</p>
+              <p>{config.emptyServices}</p>
             ) : (
               <div className="choice-grid">
                 {activeServices.map((service) => (
@@ -319,34 +328,25 @@ export function BookPage() {
             aria-describedby={errors.slotStart ? "slot-error" : undefined}
           >
             <div className="section-head">
-              <h2 id="times-heading">Open times</h2>
-              <p>Studio hours, next 14 days. Taken slots stay on the calendar.</p>
+              <h2 id="times-heading">{copy.timesHeading}</h2>
+              <p>{copy.timesNote}</p>
             </div>
-            {!selectedService ? <p>Choose a service to see times that fit.</p> : null}
+            {!selectedService ? <p>{copy.chooseService}</p> : null}
             {selectedService && activeDay ? (
               <>
                 <div className="legend">
                   <span>
-                    <i className="swatch open" /> Open
+                    <i className="swatch open" /> {copy.openLabel}
                   </span>
                   <span>
-                    <i className="swatch taken" /> Taken
+                    <i className="swatch taken" /> {copy.takenLabel}
                   </span>
                 </div>
-                <DayStrip
-                  days={days}
-                  activeDateKey={activeDay.dateKey}
-                  onSelect={setDayKey}
-                />
-                <div
-                  role="tabpanel"
-                  id="slot-panel"
-                  aria-labelledby={`day-${activeDay.dateKey}`}
-                  className="slot-panel"
-                >
+                <DayStrip days={days} activeDateKey={activeDay.dateKey} onSelect={setDayKey} />
+                <div role="tabpanel" id="slot-panel" aria-labelledby={`day-${activeDay.dateKey}`} className="slot-panel">
                   <h3>{activeDay.longLabel}</h3>
                   {activeDay.slots.length === 0 ? (
-                    <p>{activeDay.closed ? "The studio is closed this day." : "No times left this day."}</p>
+                    <p>{activeDay.closed ? copy.closedDay : copy.noTimes}</p>
                   ) : (
                     <div className="slot-grid">
                       {activeDay.slots.map((slot) => {
@@ -363,7 +363,7 @@ export function BookPage() {
                             onClick={() => update({ slotStart: slot.start })}
                           >
                             <span>{clock}</span>
-                            {!slot.available ? <span className="slot-tag">Taken</span> : null}
+                            {!slot.available ? <span className="slot-tag">{copy.takenLabel}</span> : null}
                           </button>
                         );
                       })}
@@ -379,29 +379,22 @@ export function BookPage() {
             ) : null}
           </section>
 
-          <form className="booking-form" noValidate onSubmit={onSubmit} aria-label="Booking details">
+          <form className="booking-form" noValidate onSubmit={onSubmit} aria-label={copy.formLabel}>
             <div className="section-head">
-              <h2>Your details</h2>
-              <p>Name, mobile, email, the dog's name and size, service, and time are required. Notes can be left blank.</p>
+              <h2>{copy.detailsHeading}</h2>
+              <p>{copy.detailsNote}</p>
             </div>
-            {selectedService && values.slotStart ? (
-              <p className="selection">
-                {selectedService.name}
-                {values.dogName.trim() ? ` · ${values.dogName.trim()}` : ""}
-                {values.dogSize ? ` · ${values.dogSize}` : ""} · {formatSlotLong(values.slotStart)} ·{" "}
-                {formatAud(selectedService.priceCents)}
-              </p>
-            ) : null}
+            {selectedService && values.slotStart ? <p className="selection">{selectionBits.join(" · ")}</p> : null}
             <p className="demo-hint">
               <svg className="demo-hint-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.75" />
                 <path d="M12 11.2v5.3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
                 <circle cx="12" cy="8" r="1" fill="currentColor" />
               </svg>
-              <span>Demo only, use made-up details. Saved in this browser only.</span>
+              <span>{copy.formHint}</span>
             </p>
             <div className="form-grid">
-              <Field id="name" label="Name" error={errors.name}>
+              <Field id="name" label={config.fields.name.label} error={errors.name}>
                 {({ id, describedBy, invalid }) => (
                   <input
                     id={id}
@@ -416,9 +409,9 @@ export function BookPage() {
               </Field>
               <Field
                 id="mobile"
-                label="Mobile"
+                label={config.fields.mobile.label}
                 error={errors.mobile}
-                hint="An Australian mobile, such as 0412 345 678."
+                hint={config.fields.mobile.hint}
               >
                 {({ id, describedBy, invalid }) => (
                   <input
@@ -434,7 +427,7 @@ export function BookPage() {
                   />
                 )}
               </Field>
-              <Field id="email" label="Email" error={errors.email} className="wide">
+              <Field id="email" label={config.fields.email.label} error={errors.email} className="wide">
                 {({ id, describedBy, invalid }) => (
                   <input
                     id={id}
@@ -448,38 +441,16 @@ export function BookPage() {
                   />
                 )}
               </Field>
-              <Field id="dog-name" label="Dog's name" error={errors.dogName}>
-                {({ id, describedBy, invalid }) => (
-                  <input
-                    id={id}
-                    name="dog-name"
-                    autoComplete="off"
-                    value={values.dogName}
-                    aria-invalid={invalid || undefined}
-                    aria-describedby={describedBy}
-                    onChange={(event) => update({ dogName: event.target.value })}
-                  />
-                )}
-              </Field>
-              <Field id="dog-size" label="Size" error={errors.dogSize}>
-                {({ id, describedBy, invalid }) => (
-                  <select
-                    id={id}
-                    name="dog-size"
-                    value={values.dogSize}
-                    aria-invalid={invalid || undefined}
-                    aria-describedby={describedBy}
-                    onChange={(event) => update({ dogSize: isDogSize(event.target.value) ? event.target.value : "" })}
-                  >
-                    <option value="">Choose a size</option>
-                    <option value="Small">Small</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Large">Large</option>
-                    <option value="Giant">Giant</option>
-                  </select>
-                )}
-              </Field>
-              <Field id="notes" label="Notes" error={errors.notes} className="wide">
+              {config.extraFields.map((field) => (
+                <ExtraInput
+                  key={field.id}
+                  field={field}
+                  value={values.extras[field.id] ?? ""}
+                  error={fieldError(field.id)}
+                  onChange={(value) => update({ extras: { [field.id]: value } })}
+                />
+              ))}
+              <Field id="notes" label={config.fields.notes.label} error={errors.notes} className="wide">
                 {({ id, describedBy, invalid }) => (
                   <textarea
                     id={id}
@@ -499,12 +470,58 @@ export function BookPage() {
               </p>
             ) : null}
             <button className="button" type="submit" disabled={busy}>
-              {busy ? "Saving…" : "Request this time"}
+              {busy ? copy.submitBusy : copy.submit}
             </button>
-            <p className="meta">The code in the next step is shown on screen and is never emailed.</p>
+            <p className="meta">{copy.afterNote}</p>
           </form>
         </>
       ) : null}
     </>
+  );
+}
+
+function ExtraInput({
+  field,
+  value,
+  error,
+  onChange,
+}: {
+  field: ExtraField;
+  value: string;
+  error?: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <Field id={field.id} label={field.label} error={error} hint={field.hint} className={field.wide ? "wide" : undefined}>
+      {({ id, describedBy, invalid }) =>
+        field.kind === "select" ? (
+          <select
+            id={id}
+            name={field.id}
+            value={value}
+            aria-invalid={invalid || undefined}
+            aria-describedby={describedBy}
+            onChange={(event) => onChange(event.target.value)}
+          >
+            <option value="">{field.emptyLabel ?? ""}</option>
+            {field.options?.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            id={id}
+            name={field.id}
+            autoComplete={field.autoComplete}
+            value={value}
+            aria-invalid={invalid || undefined}
+            aria-describedby={describedBy}
+            onChange={(event) => onChange(event.target.value)}
+          />
+        )
+      }
+    </Field>
   );
 }

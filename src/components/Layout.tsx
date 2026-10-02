@@ -32,9 +32,9 @@ export function Layout({ children }: { children: ReactNode }) {
           <a className="brand" href="#/">
             <img
               className="brand-lockup"
-              src={`${import.meta.env.BASE_URL}saltbush-lockup-light.svg`}
+              src={`${import.meta.env.BASE_URL}saltbush-header-light.svg`}
               alt="Saltbush Dog Grooming"
-              width={335}
+              width={327}
               height={76}
             />
           </a>

@@ -392,7 +392,14 @@ export function BookPage() {
                 {formatAud(selectedService.priceCents)}
               </p>
             ) : null}
-            <p className="demo-hint">Demo only, use made-up details. Saved in this browser only.</p>
+            <p className="demo-hint">
+              <svg className="demo-hint-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.75" />
+                <path d="M12 11.2v5.3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                <circle cx="12" cy="8" r="1" fill="currentColor" />
+              </svg>
+              <span>Demo only, use made-up details. Saved in this browser only.</span>
+            </p>
             <div className="form-grid">
               <Field id="name" label="Name" error={errors.name}>
                 {({ id, describedBy, invalid }) => (

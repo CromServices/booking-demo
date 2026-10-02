@@ -100,6 +100,45 @@ describe("demo desk", () => {
     expect((await store.listBookings()).some((booking) => booking.customerName === "Sam Okafor")).toBe(true);
   });
 
+  it("moves focus into the delete prompt, back on keep, and onward after delete", async () => {
+    const user = userEvent.setup();
+    renderAdmin();
+    await screen.findByRole("heading", { name: "Sam Okafor" });
+
+    const deleteSam = () => screen.getByRole("button", { name: "Delete booking for Sam Okafor" });
+    deleteSam().focus();
+    await user.click(deleteSam());
+    const prompt = () => screen.getByRole("group", { name: "Confirm deletion of Sam Okafor" });
+    await waitFor(() => expect(prompt()).toHaveFocus());
+
+    await user.click(screen.getByRole("button", { name: "Keep it" }));
+    expect(deleteSam()).toHaveFocus();
+    expect(screen.queryByRole("group", { name: "Confirm deletion of Sam Okafor" })).not.toBeInTheDocument();
+
+    await user.click(deleteSam());
+    await waitFor(() => expect(prompt()).toHaveFocus());
+    await user.click(screen.getByRole("button", { name: "Yes, delete" }));
+    await waitFor(() => {
+      expect(screen.queryByRole("heading", { name: "Sam Okafor" })).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Cancel Mia Tran" })).toHaveFocus();
+    });
+    expect(screen.getByRole("status")).toHaveTextContent("Deleted the booking for Sam Okafor.");
+
+    await user.click(screen.getByRole("button", { name: "Delete booking for Mia Tran" }));
+    await user.click(screen.getByRole("button", { name: "Yes, delete" }));
+    await waitFor(() => {
+      expect(screen.queryByRole("heading", { name: "Mia Tran" })).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Delete booking for Priya Nair" })).toHaveFocus();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Delete booking for Priya Nair" }));
+    await user.click(screen.getByRole("button", { name: "Yes, delete" }));
+    await waitFor(() => {
+      expect(screen.queryByRole("heading", { name: "Priya Nair" })).not.toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Upcoming bookings" })).toHaveFocus();
+    });
+  });
+
   it("adds, edits, and removes a service, then restores the sample data", async () => {
     const user = userEvent.setup();
     const store = renderAdmin();

@@ -3,7 +3,7 @@ import { Field } from "../components/Field";
 import { useDocumentTitle } from "../components/useDocumentTitle";
 import { formatAud, formatDuration, formatSlotLong } from "../domain/format";
 import { buildCalendar } from "../domain/slots";
-import { isOnOrAfterPerthDay } from "../domain/time";
+import { isOnOrAfterStudioDay } from "../domain/time";
 import {
   dollarsToCents,
   hasErrors,
@@ -49,7 +49,7 @@ export function AdminPage() {
   const [removeId, setRemoveId] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
 
-  const upcoming = bookings.filter((booking) => isOnOrAfterPerthDay(booking.slotStart, store.now()));
+  const upcoming = bookings.filter((booking) => isOnOrAfterStudioDay(booking.slotStart, store.now()));
   const visible = upcoming
     .filter((booking) => filter === "all" || booking.status === filter)
     .slice()
@@ -148,7 +148,7 @@ export function AdminPage() {
         <section aria-labelledby="bookings-heading">
           <div className="section-head">
             <h2 id="bookings-heading">Upcoming bookings</h2>
-            <p>From today in Perth, grouped by status.</p>
+            <p>From today, grouped by status.</p>
           </div>
           <div className="filter-row" role="group" aria-label="Filter by status">
             {FILTERS.map((item) => (
@@ -420,6 +420,9 @@ function BookingCard({
   onSaveReschedule: () => void;
 }) {
   const when = formatSlotLong(booking.slotStart);
+  const dogName = typeof booking.dogName === "string" ? booking.dogName.trim() : "";
+  const dogSize = typeof booking.dogSize === "string" ? booking.dogSize : "";
+  const dog = dogName && dogSize ? `${dogName} · ${dogSize}` : dogName || dogSize || "Not recorded";
   return (
     <article className="booking-card" aria-label={`Booking for ${booking.customerName} at ${when}`}>
       <header className="booking-head">
@@ -427,6 +430,10 @@ function BookingCard({
         <span className={`pill pill-${booking.status}`}>{STATUS_LABEL[booking.status]}</span>
       </header>
       <dl className="booking-facts">
+        <div>
+          <dt>Dog</dt>
+          <dd>{dog}</dd>
+        </div>
         <div>
           <dt>Service</dt>
           <dd>

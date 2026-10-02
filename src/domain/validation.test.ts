@@ -9,9 +9,11 @@ import {
 } from "./validation";
 
 const valid: BookingFormValues = {
-  name: "Demo Harper",
+  name: "Mia Tran",
+  dogName: "Noodle",
+  dogSize: "Small",
   mobile: "0412 345 678",
-  email: "harper.demo@example.com",
+  email: "mia.tran@example.com",
   serviceId: "svc-bath",
   slotStart: "2026-10-05T01:30:00.000Z",
   notes: "",
@@ -40,6 +42,11 @@ describe("validateBookingForm", () => {
     expect(validateBookingForm({ ...valid, slotStart: "" }).slotStart).toBe(bookingMessages.slot);
     expect(validateBookingForm({ ...valid, notes: "x".repeat(401) }).notes).toBe(bookingMessages.notes);
     expect(validateBookingForm({ ...valid, notes: "x".repeat(400) })).toEqual({});
+    expect(validateBookingForm({ ...valid, dogName: "" }).dogName).toBe(bookingMessages.dogName);
+    expect(validateBookingForm({ ...valid, dogSize: "" }).dogSize).toBe(bookingMessages.dogSize);
+    expect(validateBookingForm({ ...valid, dogSize: "Huge" as BookingFormValues["dogSize"] }).dogSize).toBe(
+      bookingMessages.dogSize,
+    );
   });
 });
 

@@ -1,4 +1,4 @@
-import { formatDayLabel, perthDateKey, perthMinutes } from "./time";
+import { formatDayLabel, studioDateKey, studioMinutes } from "./time";
 
 export function formatClock(minutes: number): string {
   const normalized = ((minutes % (24 * 60)) + 24 * 60) % (24 * 60);
@@ -25,6 +25,6 @@ export function formatAud(cents: number): string {
 }
 
 export function formatSlotLong(iso: string): string {
-  const label = formatDayLabel(perthDateKey(new Date(iso)));
-  return `${label.longLabel}, ${formatClock(perthMinutes(new Date(iso)))}`;
+  const label = formatDayLabel(studioDateKey(new Date(iso)));
+  return `${label.longLabel}, ${formatClock(studioMinutes(new Date(iso)))}`;
 }

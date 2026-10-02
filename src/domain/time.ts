@@ -1,9 +1,9 @@
-export const PERTH_TZ = "Australia/Perth";
-const PERTH_OFFSET = "+08:00";
+export const STUDIO_TZ = "Australia/Perth";
+const STUDIO_OFFSET = "+08:00";
 
-function perthMap(date: Date): Record<string, string> {
+function studioMap(date: Date): Record<string, string> {
   const parts = new Intl.DateTimeFormat("en-AU", {
-    timeZone: PERTH_TZ,
+    timeZone: STUDIO_TZ,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -19,22 +19,22 @@ function perthMap(date: Date): Record<string, string> {
   return map;
 }
 
-export function perthDateKey(date: Date): string {
-  const map = perthMap(date);
+export function studioDateKey(date: Date): string {
+  const map = studioMap(date);
   return `${map.year}-${map.month}-${map.day}`;
 }
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
-export function perthWeekdayIndex(date: Date): number {
-  const weekday = perthMap(date).weekday;
+export function studioWeekdayIndex(date: Date): number {
+  const weekday = studioMap(date).weekday;
   const index = WEEKDAYS.indexOf(weekday as (typeof WEEKDAYS)[number]);
-  if (index < 0) throw new Error(`Unrecognised Perth weekday: ${weekday}`);
+  if (index < 0) throw new Error(`Unrecognised studio weekday: ${weekday}`);
   return index;
 }
 
-export function perthMinutes(date: Date): number {
-  const map = perthMap(date);
+export function studioMinutes(date: Date): number {
+  const map = studioMap(date);
   const hour = Number(map.hour);
   const minute = Number(map.minute);
   return (hour === 24 ? 0 : hour) * 60 + minute;
@@ -53,12 +53,12 @@ export function zonedDate(dateKey: string, minutes: number): Date {
   const hour = Math.floor(minutes / 60);
   const minute = minutes % 60;
   return new Date(
-    `${dateKey}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00${PERTH_OFFSET}`,
+    `${dateKey}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00${STUDIO_OFFSET}`,
   );
 }
 
 export function weekdayIndexForKey(dateKey: string): number {
-  return perthWeekdayIndex(zonedDate(dateKey, 12 * 60));
+  return studioWeekdayIndex(zonedDate(dateKey, 12 * 60));
 }
 
 export type DayLabel = {
@@ -71,13 +71,13 @@ export type DayLabel = {
 export function formatDayLabel(dateKey: string): DayLabel {
   const date = zonedDate(dateKey, 12 * 60);
   const shortParts = new Intl.DateTimeFormat("en-AU", {
-    timeZone: PERTH_TZ,
+    timeZone: STUDIO_TZ,
     weekday: "short",
     day: "numeric",
     month: "short",
   }).formatToParts(date);
   const longParts = new Intl.DateTimeFormat("en-AU", {
-    timeZone: PERTH_TZ,
+    timeZone: STUDIO_TZ,
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -92,6 +92,6 @@ export function formatDayLabel(dateKey: string): DayLabel {
   };
 }
 
-export function isOnOrAfterPerthDay(iso: string, now: Date): boolean {
-  return perthDateKey(new Date(iso)) >= perthDateKey(now);
+export function isOnOrAfterStudioDay(iso: string, now: Date): boolean {
+  return studioDateKey(new Date(iso)) >= studioDateKey(now);
 }

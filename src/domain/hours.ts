@@ -1,6 +1,6 @@
 import { formatClock } from "./format";
 
-/** Opening windows in minutes from midnight, Australia/Perth. Sunday is closed. */
+/** Opening windows in minutes from midnight, studio time. Sunday is closed. */
 export const OPENING_HOURS: Record<number, { openMin: number; closeMin: number } | null> = {
   0: null,
   1: { openMin: 9 * 60, closeMin: 16 * 60 },

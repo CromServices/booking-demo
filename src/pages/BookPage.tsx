@@ -4,19 +4,22 @@ import { Field } from "../components/Field";
 import { useDocumentTitle } from "../components/useDocumentTitle";
 import { formatAud, formatClock, formatDuration, formatSlotLong } from "../domain/format";
 import { buildCalendar } from "../domain/slots";
-import { perthMinutes } from "../domain/time";
+import { studioMinutes } from "../domain/time";
 import {
   hasErrors,
+  isDogSize,
   validateBookingForm,
   type BookingFormErrors,
   type BookingFormValues,
 } from "../domain/validation";
 import { HashLink, useHashLocation } from "../hashRouter";
 import { useBookingStore, useSnapshot } from "../store/context";
-import type { Booking } from "../store/types";
+import type { Booking, DogSize } from "../store/types";
 
 const EMPTY: BookingFormValues = {
   name: "",
+  dogName: "",
+  dogSize: "",
   mobile: "",
   email: "",
   serviceId: "",
@@ -103,10 +106,20 @@ export function BookPage() {
     setShowErrors(true);
     setFormError("");
     if (hasErrors(nextErrors)) {
-      const order = ["name", "mobile", "email", "serviceId", "slotStart", "notes"] as const;
+      const order = ["name", "mobile", "email", "dogName", "dogSize", "serviceId", "slotStart", "notes"] as const;
       const first = order.find((key) => nextErrors[key]);
-      const focusId = first === "serviceId" ? "service-choice" : first === "slotStart" ? "open-times" : first;
-      const showDetails = first === "name" || first === "mobile" || first === "email";
+      const focusId =
+        first === "serviceId"
+          ? "service-choice"
+          : first === "slotStart"
+            ? "open-times"
+            : first === "dogName"
+              ? "dog-name"
+              : first === "dogSize"
+                ? "dog-size"
+                : first;
+      const showDetails =
+        first === "name" || first === "mobile" || first === "email" || first === "dogName" || first === "dogSize";
       window.setTimeout(() => {
         const target = document.getElementById(focusId ?? "");
         const anchor = showDetails
@@ -117,10 +130,14 @@ export function BookPage() {
       }, 0);
       return;
     }
+    if (!isDogSize(values.dogSize)) return;
+    const dogSize: DogSize = values.dogSize;
     setBusy(true);
     try {
       const booking = await store.createBooking({
         customerName: values.name,
+        dogName: values.dogName,
+        dogSize,
         mobile: values.mobile,
         email: values.email,
         serviceId: values.serviceId,
@@ -168,7 +185,7 @@ export function BookPage() {
   return (
     <>
       <section className="page-intro">
-        <p className="eyebrow">Sample calendar</p>
+        <p className="eyebrow">Online booking</p>
         <h1>Book a visit</h1>
         <p>
           Choose a service, then an open time in the next two weeks. Taken times stay visible and
@@ -199,7 +216,8 @@ export function BookPage() {
             <p>Hello {pending.customerName},</p>
             <p>
               This message was not sent. It only exists on this demo page so you can confirm the
-              request for {pending.serviceName} on {formatSlotLong(pending.slotStart)} Perth (
+              request for {pending.serviceName} for {pending.dogName} ({pending.dogSize}) on{" "}
+              {formatSlotLong(pending.slotStart)} (
               {formatAud(pending.priceCents)}, {formatDuration(pending.durationMinutes)}).
             </p>
             <p className="meta">Confirmation code</p>
@@ -239,8 +257,8 @@ export function BookPage() {
           <p className="eyebrow">Sample code matched</p>
           <h2 id="lodged-heading">Request lodged</h2>
           <p>
-            {pending.customerName} is pending in the demo desk for {pending.serviceName} on{" "}
-            {formatSlotLong(pending.slotStart)} Perth. No email was sent.
+            {pending.customerName} is pending in the demo desk for {pending.dogName} ({pending.dogSize}),{" "}
+            {pending.serviceName} on {formatSlotLong(pending.slotStart)}. No email was sent.
           </p>
           <div className="hero-actions">
             <HashLink to="/admin" className="button">
@@ -302,7 +320,7 @@ export function BookPage() {
           >
             <div className="section-head">
               <h2 id="times-heading">Open times</h2>
-              <p>Perth hours, next 14 days. Taken slots stay on the calendar.</p>
+              <p>Studio hours, next 14 days. Taken slots stay on the calendar.</p>
             </div>
             {!selectedService ? <p>Choose a service to see times that fit.</p> : null}
             {selectedService && activeDay ? (
@@ -332,7 +350,7 @@ export function BookPage() {
                   ) : (
                     <div className="slot-grid">
                       {activeDay.slots.map((slot) => {
-                        const clock = formatClock(perthMinutes(new Date(slot.start)));
+                        const clock = formatClock(studioMinutes(new Date(slot.start)));
                         const selected = values.slotStart === slot.start;
                         return (
                           <button
@@ -364,11 +382,13 @@ export function BookPage() {
           <form className="booking-form" noValidate onSubmit={onSubmit} aria-label="Booking details">
             <div className="section-head">
               <h2>Your details</h2>
-              <p>Name, mobile, email, service, and time are required. Notes can be left blank.</p>
+              <p>Name, mobile, email, the dog's name and size, service, and time are required. Notes can be left blank.</p>
             </div>
             {selectedService && values.slotStart ? (
               <p className="selection">
-                {selectedService.name} · {formatSlotLong(values.slotStart)} Perth ·{" "}
+                {selectedService.name}
+                {values.dogName.trim() ? ` · ${values.dogName.trim()}` : ""}
+                {values.dogSize ? ` · ${values.dogSize}` : ""} · {formatSlotLong(values.slotStart)} ·{" "}
                 {formatAud(selectedService.priceCents)}
               </p>
             ) : null}
@@ -418,6 +438,37 @@ export function BookPage() {
                     aria-describedby={describedBy}
                     onChange={(event) => update({ email: event.target.value })}
                   />
+                )}
+              </Field>
+              <Field id="dog-name" label="Dog's name" error={errors.dogName}>
+                {({ id, describedBy, invalid }) => (
+                  <input
+                    id={id}
+                    name="dog-name"
+                    autoComplete="off"
+                    value={values.dogName}
+                    aria-invalid={invalid || undefined}
+                    aria-describedby={describedBy}
+                    onChange={(event) => update({ dogName: event.target.value })}
+                  />
+                )}
+              </Field>
+              <Field id="dog-size" label="Size" error={errors.dogSize}>
+                {({ id, describedBy, invalid }) => (
+                  <select
+                    id={id}
+                    name="dog-size"
+                    value={values.dogSize}
+                    aria-invalid={invalid || undefined}
+                    aria-describedby={describedBy}
+                    onChange={(event) => update({ dogSize: isDogSize(event.target.value) ? event.target.value : "" })}
+                  >
+                    <option value="">Choose a size</option>
+                    <option value="Small">Small</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Large">Large</option>
+                    <option value="Giant">Giant</option>
+                  </select>
                 )}
               </Field>
               <Field id="notes" label="Notes" error={errors.notes} className="wide">

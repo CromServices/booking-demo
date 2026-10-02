@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t">
-  <title id="t">Saltbush Dog Grooming</title>
-  <!-- Concept A: dog head in profile, clay collar, saltbush-leaf tag. Palette from styles.css. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 76" role="img" aria-label="Saltbush Dog Grooming">
+  <rect width="300" height="76" fill="#f3eee6"/>
+  <g transform="translate(6 6)">
   <defs><clipPath id="tile"><rect width="64" height="64" rx="14"/></clipPath></defs>
   <rect width="64" height="64" rx="14" fill="#1b3f34"/>
   <g clip-path="url(#tile)">
@@ -17,4 +17,7 @@
     <path fill="#8fbfa4" d="M31 51.6 C27.4 54.2 27.2 59 31 61.4 C34.8 59 34.6 54.2 31 51.6 Z"/>
     <path d="M31 54.2 L31 59.4" stroke="#6e9a78" stroke-width="1" stroke-linecap="round"/>
   </g>
+  </g>
+  <text x="84" y="38" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="-0.9" fill="#1c2824">Saltbush</text>
+  <text x="85" y="60" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="15" font-weight="500" letter-spacing="-0.1" fill="#5c6b64">Dog Grooming</text>
 </svg>

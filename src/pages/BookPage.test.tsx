@@ -29,6 +29,8 @@ describe("booking form", () => {
     const alertText = () => screen.getAllByRole("alert").map((element) => element.textContent);
     for (const message of [
       bookingMessages.name,
+      bookingMessages.dogName,
+      bookingMessages.dogSize,
       bookingMessages.mobile,
       bookingMessages.email,
       bookingMessages.service,
@@ -61,6 +63,8 @@ describe("booking form", () => {
     await user.click(await screen.findByRole("radio", { name: /Bath & brush/ }));
     await user.click(screen.getByRole("button", { name: "9:30 am available" }));
     await user.type(screen.getByLabelText("Name"), "Test Visitor");
+    await user.type(screen.getByLabelText("Dog's name"), "Noodle");
+    await user.selectOptions(screen.getByLabelText("Size"), "Small");
     await user.type(screen.getByLabelText("Mobile"), "0412 345 678");
     await user.type(screen.getByLabelText("Email"), "Test.Visitor@Example.com");
     await user.type(screen.getByLabelText("Notes"), "Walkthrough sample");
@@ -71,6 +75,7 @@ describe("booking form", () => {
     await waitFor(() => expect(codeField).toHaveFocus());
     expect(email).toHaveTextContent(/not sent/i);
     expect(email).toHaveTextContent("test.visitor@example.com");
+    expect(email).toHaveTextContent("Noodle (Small)");
     const code = within(email).getByRole("status", { name: "Confirmation code" }).textContent ?? "";
     expect(code).toMatch(/^\d{6}$/);
 
@@ -96,6 +101,8 @@ describe("booking form", () => {
     expect(saved).toMatchObject({
       email: "test.visitor@example.com",
       mobile: "0412 345 678",
+      dogName: "Noodle",
+      dogSize: "Small",
       status: "pending",
       emailVerified: true,
       notes: "Walkthrough sample",

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { fixedClock, FIXED_NOW } from "../test/fixtures";
 import { createLocalStorageBookingStore, STORAGE_KEY, type KeyValueStorage } from "./localStorageStore";
-import { SERVICE_IDS } from "./seed";
+import { MemoryBookingStore } from "./memoryStore";
+import { createSeed, SERVICE_IDS } from "./seed";
 
 function memoryStorage(initial?: string): KeyValueStorage & { raw: () => string | null } {
   const map = new Map<string, string>();
@@ -88,5 +89,28 @@ describe("createLocalStorageBookingStore", () => {
     expect(booking.customerName).toBe("Old Client");
     expect(booking.dogName).toBe("");
     expect(booking.dogSize).toBe("");
+  });
+
+  it("deletes one booking from the memory store", async () => {
+    const store = new MemoryBookingStore(createSeed(FIXED_NOW), fixedClock(FIXED_NOW));
+    const before = await store.listBookings();
+    await store.deleteBooking(before[0].id);
+    const after = await store.listBookings();
+    expect(after).toHaveLength(before.length - 1);
+    expect(after.some((booking) => booking.id === before[0].id)).toBe(false);
+  });
+
+  it("deletes one booking from saved browser data", async () => {
+    const storage = memoryStorage();
+    const clock = fixedClock(FIXED_NOW);
+    const first = createLocalStorageBookingStore(storage, STORAGE_KEY, clock);
+    const before = await first.listBookings();
+    await first.deleteBooking(before[0].id);
+    const second = createLocalStorageBookingStore(storage, STORAGE_KEY, clock);
+    const after = await second.listBookings();
+    expect(after).toHaveLength(before.length - 1);
+    expect(after.some((booking) => booking.id === before[0].id)).toBe(false);
+    const saved = JSON.parse(storage.raw() ?? "{}") as { bookings: { id: string }[] };
+    expect(saved.bookings.some((booking) => booking.id === before[0].id)).toBe(false);
   });
 });

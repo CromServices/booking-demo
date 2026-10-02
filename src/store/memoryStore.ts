@@ -186,6 +186,14 @@ export class MemoryBookingStore implements BookingStore {
     return structuredClone(created);
   }
 
+  async deleteBooking(id: string): Promise<void> {
+    this.data = {
+      ...this.data,
+      bookings: this.data.bookings.filter((booking) => booking.id !== id),
+    };
+    this.emit();
+  }
+
   async removeService(id: string): Promise<void> {
     this.data = {
       ...this.data,

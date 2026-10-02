@@ -61,6 +61,45 @@ describe("demo desk", () => {
     expect(moved?.status).toBe("confirmed");
   });
 
+  it("masks contact details until that card is revealed, and deletes one booking", async () => {
+    const user = userEvent.setup();
+    const store = renderAdmin();
+    const sam = () => screen.getByRole("article", { name: /Booking for Sam Okafor at/ });
+    const priya = () => screen.getByRole("article", { name: /Booking for Priya Nair at/ });
+
+    expect(await screen.findByRole("heading", { name: "Sam Okafor" })).toBeInTheDocument();
+    expect(within(sam()).getByText(/0400 \*\*\* 222/)).toBeInTheDocument();
+    expect(within(sam()).getByText(/s\*\*\*@example.com/)).toBeInTheDocument();
+    expect(within(sam()).queryByText("sam.okafor@example.com")).not.toBeInTheDocument();
+    expect(screen.queryByText("mia.tran@example.com")).not.toBeInTheDocument();
+
+    const show = within(sam()).getByRole("button", { name: "Show details" });
+    expect(show).toHaveAttribute("aria-expanded", "false");
+    await user.click(show);
+    expect(within(sam()).getByRole("button", { name: "Hide details" })).toHaveAttribute("aria-expanded", "true");
+    expect(within(sam()).getByText(/sam\.okafor@example.com/)).toBeInTheDocument();
+    expect(within(sam()).getByText(/0400 000 222/)).toBeInTheDocument();
+    expect(screen.queryByText("mia.tran@example.com")).not.toBeInTheDocument();
+
+    await user.click(within(sam()).getByRole("button", { name: "Hide details" }));
+    expect(within(sam()).queryByText("sam.okafor@example.com")).not.toBeInTheDocument();
+
+    await user.click(within(priya()).getByRole("button", { name: "Delete booking for Priya Nair" }));
+    expect(within(priya()).getByText("Delete this booking?")).toBeInTheDocument();
+    await user.click(within(priya()).getByRole("button", { name: "Keep it" }));
+    expect(within(priya()).queryByText("Delete this booking?")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Priya Nair" })).toBeInTheDocument();
+
+    await user.click(within(priya()).getByRole("button", { name: "Delete booking for Priya Nair" }));
+    await user.click(within(priya()).getByRole("button", { name: "Yes, delete" }));
+    await waitFor(() => {
+      expect(screen.queryByRole("heading", { name: "Priya Nair" })).not.toBeInTheDocument();
+    });
+    expect(screen.queryByRole("heading", { name: "Cancelled" })).not.toBeInTheDocument();
+    expect((await store.listBookings()).some((booking) => booking.customerName === "Priya Nair")).toBe(false);
+    expect((await store.listBookings()).some((booking) => booking.customerName === "Sam Okafor")).toBe(true);
+  });
+
   it("adds, edits, and removes a service, then restores the sample data", async () => {
     const user = userEvent.setup();
     const store = renderAdmin();

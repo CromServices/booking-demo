@@ -392,6 +392,7 @@ export function BookPage() {
                 {formatAud(selectedService.priceCents)}
               </p>
             ) : null}
+            <p className="demo-hint">Demo only, use made-up details. Saved in this browser only.</p>
             <div className="form-grid">
               <Field id="name" label="Name" error={errors.name}>
                 {({ id, describedBy, invalid }) => (

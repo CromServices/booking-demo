@@ -310,7 +310,8 @@ svg {
 
 .section-head p,
 .meta,
-.field-hint {
+.field-hint,
+.demo-hint {
   color: var(--muted);
 }
 
@@ -678,7 +679,8 @@ select[aria-invalid="true"] {
   font-size: 0.95rem;
 }
 
-.field-hint {
+.field-hint,
+.demo-hint {
   margin: 0;
   font-size: 0.92rem;
 }

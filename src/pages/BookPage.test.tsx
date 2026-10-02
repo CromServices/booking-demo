@@ -23,6 +23,7 @@ describe("booking form", () => {
     expect(screen.getByRole("note")).toHaveTextContent(BANNER);
     const form = await screen.findByRole("form", { name: "Booking details" });
     expect(form).not.toHaveAttribute("action");
+    expect(form).toHaveTextContent("Demo only, use made-up details. Saved in this browser only.");
 
     await user.click(screen.getByRole("button", { name: "Request this time" }));
 

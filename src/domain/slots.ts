@@ -2,7 +2,7 @@ import { HORIZON_DAYS, OPENING_HOURS, SLOT_STEP_MINUTES } from "./hours";
 import {
   addDaysToKey,
   formatDayLabel,
-  perthDateKey,
+  studioDateKey,
   weekdayIndexForKey,
   zonedDate,
 } from "./time";
@@ -42,7 +42,7 @@ export function buildCalendar(args: {
 }): CalendarDay[] {
   const horizon = args.horizonDays ?? HORIZON_DAYS;
   const step = args.stepMinutes ?? SLOT_STEP_MINUTES;
-  const startKey = perthDateKey(args.now);
+  const startKey = studioDateKey(args.now);
   const blocking = args.bookings.filter((booking) => booking.status !== "cancelled");
   const days: CalendarDay[] = [];
 

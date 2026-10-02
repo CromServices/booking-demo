@@ -6,6 +6,9 @@
  */
 export type BookingStatus = "pending" | "confirmed" | "cancelled";
 
+export const DOG_SIZES = ["Small", "Medium", "Large", "Giant"] as const;
+export type DogSize = (typeof DOG_SIZES)[number];
+
 export type Service = {
   id: string;
   name: string;
@@ -18,6 +21,8 @@ export type Service = {
 export type Booking = {
   id: string;
   customerName: string;
+  dogName: string;
+  dogSize: DogSize | "";
   mobile: string;
   email: string;
   serviceId: string;
@@ -40,6 +45,8 @@ export type DemoSnapshot = {
 
 export type CreateBookingInput = {
   customerName: string;
+  dogName: string;
+  dogSize: DogSize;
   mobile: string;
   email: string;
   serviceId: string;

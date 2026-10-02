@@ -1,5 +1,9 @@
+import { DOG_SIZES, type DogSize } from "../store/types";
+
 export type BookingFormValues = {
   name: string;
+  dogName: string;
+  dogSize: DogSize | "";
   mobile: string;
   email: string;
   serviceId: string;
@@ -11,12 +15,18 @@ export type BookingFormErrors = Partial<Record<keyof BookingFormValues, string>>
 
 export const bookingMessages = {
   name: "Enter the name for this booking.",
+  dogName: "Enter the dog's name.",
+  dogSize: "Choose a size.",
   mobile: "Enter an Australian mobile, like 0412 345 678.",
   email: "Enter an email address so the sample confirmation can be addressed to you.",
   service: "Choose a service.",
   slot: "Choose an open time.",
   notes: "Keep notes to 400 characters or fewer.",
 } as const;
+
+export function isDogSize(value: unknown): value is DogSize {
+  return typeof value === "string" && (DOG_SIZES as readonly string[]).includes(value);
+}
 
 export function normalizeAuMobile(input: string): string | null {
   const compact = input.replace(/[\s()-]/g, "");
@@ -33,6 +43,13 @@ export function validateBookingForm(values: BookingFormValues): BookingFormError
   const name = values.name.trim();
   if (!/^[\p{L}][\p{L}\p{M}'’.\- ]{1,79}$/u.test(name)) {
     errors.name = bookingMessages.name;
+  }
+  const dogName = values.dogName.trim();
+  if (!/^[\p{L}][\p{L}\p{M}'’.\- ]{0,39}$/u.test(dogName)) {
+    errors.dogName = bookingMessages.dogName;
+  }
+  if (!isDogSize(values.dogSize)) {
+    errors.dogSize = bookingMessages.dogSize;
   }
   if (!normalizeAuMobile(values.mobile)) {
     errors.mobile = bookingMessages.mobile;

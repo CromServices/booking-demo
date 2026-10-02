@@ -1,3 +1,4 @@
+import { isDogSize } from "../domain/validation";
 import { createSeed } from "./seed";
 import { MemoryBookingStore } from "./memoryStore";
 import type { BookingStore, DemoSnapshot } from "./types";
@@ -16,12 +17,23 @@ function isSnapshot(value: unknown): value is DemoSnapshot {
   return snapshot.version === 1 && Array.isArray(snapshot.services) && Array.isArray(snapshot.bookings);
 }
 
+function withDogDetails(snapshot: DemoSnapshot): DemoSnapshot {
+  return {
+    ...snapshot,
+    bookings: snapshot.bookings.map((booking) => ({
+      ...booking,
+      dogName: typeof booking.dogName === "string" ? booking.dogName : "",
+      dogSize: isDogSize(booking.dogSize) ? booking.dogSize : "",
+    })),
+  };
+}
+
 function readSnapshot(storage: KeyValueStorage, key: string): DemoSnapshot | null {
   const raw = storage.getItem(key);
   if (!raw) return null;
   try {
     const parsed: unknown = JSON.parse(raw);
-    return isSnapshot(parsed) ? parsed : null;
+    return isSnapshot(parsed) ? withDogDetails(parsed) : null;
   } catch {
     return null;
   }

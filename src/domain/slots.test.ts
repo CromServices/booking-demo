@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { formatClock } from "./format";
 import { buildCalendar } from "./slots";
-import { perthMinutes } from "./time";
+import { studioMinutes } from "./time";
 
 const MONDAY_9AM = new Date("2026-10-05T01:00:00.000Z");
 
 function clocks(now: Date, durationMinutes: number) {
   const day = buildCalendar({ now, durationMinutes, bookings: [] })[0];
-  return day.slots.map((slot) => formatClock(perthMinutes(new Date(slot.start))));
+  return day.slots.map((slot) => formatClock(studioMinutes(new Date(slot.start))));
 }
 
 describe("buildCalendar", () => {
-  it("covers 14 Perth days and marks Sunday closed", () => {
+  it("covers 14 studio days and marks Sunday closed", () => {
     const days = buildCalendar({ now: MONDAY_9AM, durationMinutes: 60, bookings: [] });
     expect(days).toHaveLength(14);
     expect(days[0]?.dateKey).toBe("2026-10-05");
@@ -35,14 +35,14 @@ describe("buildCalendar", () => {
     expect(clocks(MONDAY_9AM, 90)).not.toContain("3:00 pm");
     const days = buildCalendar({ now: MONDAY_9AM, durationMinutes: 60, bookings: [] });
     const saturday = days.find((day) => day.dateKey === "2026-10-10");
-    const saturdayClocks = saturday?.slots.map((slot) => formatClock(perthMinutes(new Date(slot.start))));
+    const saturdayClocks = saturday?.slots.map((slot) => formatClock(studioMinutes(new Date(slot.start))));
     expect(saturdayClocks).toContain("12:00 pm");
     expect(saturdayClocks).not.toContain("12:30 pm");
   });
 
   it("marks overlapping bookings taken and ignores cancelled ones", () => {
     const open = buildCalendar({ now: MONDAY_9AM, durationMinutes: 60, bookings: [] });
-    const target = open[0]?.slots.find((slot) => perthMinutes(new Date(slot.start)) === 10 * 60 + 30);
+    const target = open[0]?.slots.find((slot) => studioMinutes(new Date(slot.start)) === 10 * 60 + 30);
     expect(target?.available).toBe(true);
 
     const blocked = buildCalendar({
@@ -51,7 +51,7 @@ describe("buildCalendar", () => {
       bookings: [{ slotStart: target!.start, durationMinutes: 60, status: "confirmed" }],
     });
     expect(blocked[0]?.slots.find((slot) => slot.start === target!.start)?.available).toBe(false);
-    const eleven = blocked[0]?.slots.find((slot) => perthMinutes(new Date(slot.start)) === 11 * 60);
+    const eleven = blocked[0]?.slots.find((slot) => studioMinutes(new Date(slot.start)) === 11 * 60);
     expect(eleven?.available).toBe(false);
 
     const cancelled = buildCalendar({

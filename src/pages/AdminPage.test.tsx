@@ -1,8 +1,10 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { makeStore } from "../test/fixtures";
+import { fixedClock, FIXED_NOW, makeStore } from "../test/fixtures";
 import { renderAt } from "../test/render";
+import { createLocalStorageBookingStore, STORAGE_KEY } from "../store/localStorageStore";
+import { SERVICE_IDS } from "../store/seed";
 import { AdminPage } from "./AdminPage";
 
 const BANNER =
@@ -21,39 +23,40 @@ describe("demo desk", () => {
     expect(await screen.findByRole("heading", { name: "Demo desk" })).toBeInTheDocument();
     expect(screen.getByRole("note")).toHaveTextContent(BANNER);
 
-    const quinn = () => screen.getByRole("article", { name: /Booking for Sample Quinn at/ });
+    const quinn = () => screen.getByRole("article", { name: /Booking for Sam Okafor at/ });
     const before = quinn().getAttribute("aria-label");
     expect(
       screen.getAllByRole("heading", { name: /^(Pending|Approved|Cancelled)$/ }).map((heading) => heading.textContent),
     ).toEqual(["Pending", "Approved", "Cancelled"]);
 
-    await user.click(screen.getByRole("button", { name: "Approve Sample Quinn" }));
+    expect(screen.getByText("Noodle · Small")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Approve Sam Okafor" }));
     expect(await within(quinn()).findByText("Approved")).toBeInTheDocument();
-    expect((await store.listBookings()).find((booking) => booking.customerName === "Sample Quinn")?.status).toBe(
+    expect((await store.listBookings()).find((booking) => booking.customerName === "Sam Okafor")?.status).toBe(
       "confirmed",
     );
 
-    await user.click(screen.getByRole("button", { name: "Cancel Demo Harper" }));
-    const harper = screen.getByRole("article", { name: /Booking for Demo Harper at/ });
+    await user.click(screen.getByRole("button", { name: "Cancel Mia Tran" }));
+    const harper = screen.getByRole("article", { name: /Booking for Mia Tran at/ });
     expect(await within(harper).findByText("Cancelled")).toBeInTheDocument();
-    expect(within(harper).queryByRole("button", { name: "Cancel Demo Harper" })).not.toBeInTheDocument();
+    expect(within(harper).queryByRole("button", { name: "Cancel Mia Tran" })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Reschedule Sample Quinn" }));
-    const select = screen.getByLabelText("New time for Sample Quinn");
+    await user.click(screen.getByRole("button", { name: "Reschedule Sam Okafor" }));
+    const select = screen.getByLabelText("New time for Sam Okafor");
     const option = within(select)
       .getAllByRole("option")
       .map((item) => item as HTMLOptionElement)
       .find((item) => item.value);
     expect(option?.value).toBeTruthy();
     await user.selectOptions(select, option!.value);
-    await user.click(screen.getByRole("button", { name: "Save new time for Sample Quinn" }));
+    await user.click(screen.getByRole("button", { name: "Save new time for Sam Okafor" }));
 
     await waitFor(() => {
       const after = quinn().getAttribute("aria-label");
       expect(after).not.toBe(before);
       expect(after).toContain(option!.textContent);
     });
-    const moved = (await store.listBookings()).find((booking) => booking.customerName === "Sample Quinn");
+    const moved = (await store.listBookings()).find((booking) => booking.customerName === "Sam Okafor");
     expect(moved?.slotStart).toBe(option!.value);
     expect(moved?.status).toBe("confirmed");
   });
@@ -100,6 +103,54 @@ describe("demo desk", () => {
       expect(screen.queryByRole("heading", { name: "Temporary rinse" })).not.toBeInTheDocument();
     });
     expect(screen.getByRole("heading", { name: "Bath & brush" })).toBeInTheDocument();
-    expect((await store.listBookings()).some((booking) => booking.customerName === "Demo Harper")).toBe(true);
+    expect((await store.listBookings()).some((booking) => booking.customerName === "Mia Tran")).toBe(true);
+  });
+
+  it("renders a saved booking that has no dog details", async () => {
+    const legacy = {
+      version: 1 as const,
+      services: [
+        {
+          id: SERVICE_IDS.bath,
+          name: "Bath & brush",
+          summary: "Warm wash.",
+          priceCents: 6500,
+          durationMinutes: 60,
+          active: true,
+        },
+      ],
+      bookings: [
+        {
+          id: "bkg-old",
+          customerName: "Old Client",
+          mobile: "0400 000 444",
+          email: "old.client@example.com",
+          serviceId: SERVICE_IDS.bath,
+          serviceName: "Bath & brush",
+          priceCents: 6500,
+          durationMinutes: 60,
+          slotStart: "2026-10-06T02:30:00.000Z",
+          notes: "",
+          status: "pending" as const,
+          emailVerified: false,
+          confirmationCode: "444444",
+          createdAt: FIXED_NOW.toISOString(),
+        },
+      ],
+    };
+    const storage = {
+      value: JSON.stringify(legacy),
+      getItem: () => storage.value,
+      setItem: (_key: string, next: string) => {
+        storage.value = next;
+      },
+      removeItem: () => {
+        storage.value = "";
+      },
+    };
+    const store = createLocalStorageBookingStore(storage, STORAGE_KEY, fixedClock(FIXED_NOW));
+    renderAt("#/admin", store, <AdminPage />);
+    expect(await screen.findByRole("heading", { name: "Old Client" })).toBeInTheDocument();
+    expect(screen.getByText("Not recorded")).toBeInTheDocument();
   });
 });

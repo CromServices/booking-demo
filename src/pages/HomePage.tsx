@@ -15,12 +15,11 @@ export function HomePage() {
     <>
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">Fremantle · Invented salon</p>
+          <p className="eyebrow">Dog grooming · By appointment</p>
           <h1>A calm groom for dogs who would rather be at the beach.</h1>
           <p className="lede">
-            Saltbush Dog Grooming is an invented Fremantle studio, built so Crom Services can show a
-            booking site. The prices, pets, and appointments are sample data. The confirmation step
-            stays on this page and is never emailed.
+            Gentle baths, tidy clips and nail trims in a quiet studio, one dog at a time. Pick a
+            service, choose an open time and you're booked in under a minute.
           </p>
           <div className="hero-actions">
             <HashLink to="/book?service=svc-bath" className="button">
@@ -33,14 +32,14 @@ export function HomePage() {
         </div>
         <div className="hero-panel">
           <StudioScene />
-          <p>Sample studio · Perth time</p>
+          <p>Quiet studio · one dog at a time</p>
         </div>
       </section>
 
       <section className="section" aria-labelledby="services-heading">
         <div className="section-head">
-          <h2 id="services-heading">Sample services</h2>
-          <p>Prices are made up for this demo and shown in Australian dollars.</p>
+          <h2 id="services-heading">Services</h2>
+          <p>Prices in Australian dollars.</p>
         </div>
         {!ready ? <p role="status">Loading sample data…</p> : null}
         {ready && active.length === 0 ? (
@@ -72,13 +71,13 @@ export function HomePage() {
               </div>
             ))}
           </dl>
-          <p className="meta">Times are Perth, AWST. The calendar shows the next 14 days.</p>
+          <p className="meta">Times are studio time. The calendar shows the next 14 days.</p>
         </article>
         <article className="info-card">
           <h2>How a booking works</h2>
           <ol className="steps">
             <li>Choose a service and an open time.</li>
-            <li>Leave a name, Australian mobile, and email.</li>
+            <li>Leave your name, the dog's name and size, an Australian mobile, and an email.</li>
             <li>Read the confirmation code on the sample email. Nothing is sent.</li>
             <li>The demo desk approves, moves, or cancels the request.</li>
           </ol>
@@ -87,7 +86,7 @@ export function HomePage() {
 
       <section className="visit">
         <h2>The studio</h2>
-        <p>12 Demonstration Lane, Fremantle WA 6160. This address is fictional.</p>
+        <p>12 Demonstration Lane. This address is fictional.</p>
       </section>
     </>
   );

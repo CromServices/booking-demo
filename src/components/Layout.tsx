@@ -34,7 +34,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <Mark />
             <span>
               <strong>Saltbush</strong>
-              <small>Dog Grooming · Fremantle</small>
+              <small>Dog Grooming</small>
             </span>
           </a>
           <nav className="primary-nav" aria-label="Primary">

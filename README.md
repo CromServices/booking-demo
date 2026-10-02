@@ -1,6 +1,8 @@
+![Saltbush Dog Grooming](public/saltbush-lockup-light.svg)
+
 # Booking demo
 
-A public demo booking site and admin desk for **Saltbush Dog Grooming**, an invented salon in Fremantle, Western Australia. It is a Crom Services portfolio piece. It is not a real business. Prices, customers, and appointments are sample data. Confirmation emails are simulated on screen and are never sent.
+A public demo booking site and admin desk for **Saltbush Dog Grooming**, an invented Australian salon. It is a Crom Services portfolio piece. It is not a real business. Prices, customers, and appointments are sample data. Confirmation emails are simulated on screen and are never sent.
 
 Live demo (after this repo is on `main` and GitHub Pages has deployed):
 
@@ -38,7 +40,7 @@ Pages never read `localStorage` themselves. They call a `BookingStore` (`src/sto
 
 `App` passes `createLocalStorageBookingStore()` into `BookingStoreProvider`. That adapter keeps one JSON snapshot in this browser under `saltbush-booking-demo-v1`. Tests use `MemoryBookingStore` instead. A Supabase adapter can implement the same interface and replace the provider value without changing the pages. This demo does not add Supabase, a backend, or analytics.
 
-`Reset demo data` on the demo desk restores the sample services and bookings for the current Perth date.
+`Reset demo data` on the demo desk restores the sample services and bookings for the current studio date.
 
 ## Deploy
 

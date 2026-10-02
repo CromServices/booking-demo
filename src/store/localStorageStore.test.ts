@@ -44,6 +44,49 @@ describe("createLocalStorageBookingStore", () => {
     const storage = memoryStorage("{not json");
     const store = createLocalStorageBookingStore(storage, STORAGE_KEY, fixedClock(FIXED_NOW));
     const bookings = await store.listBookings();
-    expect(bookings.some((booking) => booking.customerName === "Demo Harper")).toBe(true);
+    expect(bookings.some((booking) => booking.customerName === "Mia Tran")).toBe(true);
+  });
+
+  it("shows a saved booking that has no dog details", async () => {
+    const legacy = {
+      version: 1,
+      services: [
+        {
+          id: SERVICE_IDS.bath,
+          name: "Bath & brush",
+          summary: "Warm wash.",
+          priceCents: 6500,
+          durationMinutes: 60,
+          active: true,
+        },
+      ],
+      bookings: [
+        {
+          id: "bkg-old",
+          customerName: "Old Client",
+          mobile: "0400 000 444",
+          email: "old.client@example.com",
+          serviceId: SERVICE_IDS.bath,
+          serviceName: "Bath & brush",
+          priceCents: 6500,
+          durationMinutes: 60,
+          slotStart: "2026-10-06T02:30:00.000Z",
+          notes: "",
+          status: "pending",
+          emailVerified: false,
+          confirmationCode: "444444",
+          createdAt: FIXED_NOW,
+        },
+      ],
+    };
+    const store = createLocalStorageBookingStore(
+      memoryStorage(JSON.stringify(legacy)),
+      STORAGE_KEY,
+      fixedClock(FIXED_NOW),
+    );
+    const [booking] = await store.listBookings();
+    expect(booking.customerName).toBe("Old Client");
+    expect(booking.dogName).toBe("");
+    expect(booking.dogSize).toBe("");
   });
 });

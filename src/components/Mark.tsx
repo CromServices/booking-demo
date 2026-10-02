@@ -1,14 +1,21 @@
 export function Mark({ size = 36 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
-      <rect width="64" height="64" rx="16" fill="#1b3f34" />
-      <ellipse cx="30" cy="40" rx="14" ry="10" fill="#f4efe6" />
-      <circle cx="42" cy="31" r="8" fill="#f4efe6" />
-      <ellipse cx="48" cy="25" rx="4" ry="7" fill="#e7d3bf" />
-      <circle cx="44" cy="30" r="1.2" fill="#1b3f34" />
-      <path d="M18 42c2-10 6-14 10-12" stroke="#8fbfa4" strokeWidth="2" strokeLinecap="round" />
-      <ellipse cx="16" cy="32" rx="4" ry="2.2" transform="rotate(-30 16 32)" fill="#8fbfa4" />
-      <ellipse cx="20" cy="27" rx="4" ry="2.2" transform="rotate(-10 20 27)" fill="#6e9a78" />
+      <defs>
+        <clipPath id="sb-mark-tile">
+          <rect width="64" height="64" rx="14" />
+        </clipPath>
+      </defs>
+      <rect width="64" height="64" rx="14" fill="#1b3f34" />
+      <g clipPath="url(#sb-mark-tile)">
+        <path fill="#f4efe6" d="M14.5 66 C13.6 52 14.6 39 18.6 31 C22.6 23 29.6 18.4 36.8 18.8 C40.8 19.1 43.4 21.2 45 24.3 L53.4 26.8 C56.6 27.7 57.7 30.7 56.1 32.9 C54.7 34.9 51.6 35.5 48.6 35.6 C45.6 35.8 43.2 37.4 41.8 40 C40.2 43.6 40.2 52 41.2 66 Z" />
+        <path fill="#c4a882" d="M28.6 21.4 C22.8 21.9 19.8 28.8 21 36.2 C21.7 40.6 26.5 41.3 28.2 37.6 C30.3 32.8 31.9 26.5 28.6 21.4 Z" />
+        <circle cx="39.4" cy="26.6" r="2" fill="#1c2824" />
+        <path fill="#1c2824" d="M53.4 26.9 C55.9 27.1 57.7 28.8 57.3 31 C57 32.4 55.4 32.8 54 32 C52.5 31.1 51.8 28.8 53.4 26.9 Z" />
+        <path fill="#c4613a" d="M14.2 45.6 C22.6 47.4 32 47.4 40.6 45.6 L40.8 51 C32 52.8 22.6 52.8 14.3 51 Z" />
+        <path fill="#8fbfa4" d="M31 51.6 C27.4 54.2 27.2 59 31 61.4 C34.8 59 34.6 54.2 31 51.6 Z" />
+        <path d="M31 54.2 L31 59.4" stroke="#6e9a78" strokeWidth="1" strokeLinecap="round" />
+      </g>
     </svg>
   );
 }
@@ -23,16 +30,15 @@ export function StudioScene() {
       <ellipse cx="78" cy="168" rx="22" ry="10" transform="rotate(-15 78 168)" fill="#6e9a78" />
       <ellipse cx="92" cy="206" rx="18" ry="8" transform="rotate(20 92 206)" fill="#b7d0b4" />
       <ellipse cx="180" cy="318" rx="120" ry="28" fill="#c4a882" />
-      <ellipse cx="168" cy="268" rx="78" ry="46" fill="#f4efe6" />
-      <circle cx="230" cy="220" r="40" fill="#f4efe6" />
-      <ellipse cx="258" cy="188" rx="16" ry="30" transform="rotate(18 258 188)" fill="#e7d3bf" />
-      <ellipse cx="214" cy="196" rx="12" ry="22" transform="rotate(-20 214 196)" fill="#e7d3bf" />
-      <circle cx="244" cy="216" r="4" fill="#1b3f34" />
-      <ellipse cx="252" cy="232" rx="8" ry="5" fill="#1b3f34" />
-      <path d="M112 250c-28-10-36 20-20 32" stroke="#f4efe6" strokeWidth="10" fill="none" strokeLinecap="round" />
-      <path d="M150 250c40 8 70 8 96-6" stroke="#c4613a" strokeWidth="8" fill="none" strokeLinecap="round" />
-      <circle cx="196" cy="286" r="7" fill="#1b3f34" />
-      <circle cx="228" cy="292" r="7" fill="#1b3f34" />
+      <g transform="translate(148 108) scale(2.85)">
+        <path fill="#f4efe6" d="M14.5 66 C13.6 52 14.6 39 18.6 31 C22.6 23 29.6 18.4 36.8 18.8 C40.8 19.1 43.4 21.2 45 24.3 L53.4 26.8 C56.6 27.7 57.7 30.7 56.1 32.9 C54.7 34.9 51.6 35.5 48.6 35.6 C45.6 35.8 43.2 37.4 41.8 40 C40.2 43.6 40.2 52 41.2 66 Z" />
+        <path fill="#c4a882" d="M28.6 21.4 C22.8 21.9 19.8 28.8 21 36.2 C21.7 40.6 26.5 41.3 28.2 37.6 C30.3 32.8 31.9 26.5 28.6 21.4 Z" />
+        <circle cx="39.4" cy="26.6" r="2" fill="#1c2824" />
+        <path fill="#1c2824" d="M53.4 26.9 C55.9 27.1 57.7 28.8 57.3 31 C57 32.4 55.4 32.8 54 32 C52.5 31.1 51.8 28.8 53.4 26.9 Z" />
+        <path fill="#c4613a" d="M14.2 45.6 C22.6 47.4 32 47.4 40.6 45.6 L40.8 51 C32 52.8 22.6 52.8 14.3 51 Z" />
+        <path fill="#8fbfa4" d="M31 51.6 C27.4 54.2 27.2 59 31 61.4 C34.8 59 34.6 54.2 31 51.6 Z" />
+        <path d="M31 54.2 L31 59.4" stroke="#6e9a78" strokeWidth="1" strokeLinecap="round" />
+      </g>
     </svg>
   );
 }

@@ -1,5 +1,5 @@
 import { buildCalendar, type SlotBooking } from "../domain/slots";
-import { perthMinutes } from "../domain/time";
+import { studioMinutes } from "../domain/time";
 import type { Booking, DemoSnapshot, Service } from "./types";
 
 export const SERVICE_IDS = {
@@ -61,12 +61,12 @@ function pickNthDay(
   dayIndex: number,
 ): string | null {
   const matches = buildCalendar({ now, durationMinutes, bookings }).filter((day) =>
-    day.slots.some((slot) => slot.available && perthMinutes(new Date(slot.start)) === minuteOfDay),
+    day.slots.some((slot) => slot.available && studioMinutes(new Date(slot.start)) === minuteOfDay),
   );
   const day = matches[dayIndex];
   if (!day) return null;
   return (
-    day.slots.find((slot) => slot.available && perthMinutes(new Date(slot.start)) === minuteOfDay)
+    day.slots.find((slot) => slot.available && studioMinutes(new Date(slot.start)) === minuteOfDay)
       ?.start ?? null
   );
 }
@@ -93,16 +93,18 @@ export function createSeed(now: Date): DemoSnapshot {
     bookings.push(
       sampleBooking(
         {
-          id: "bkg-harper",
-          customerName: "Demo Harper",
+          id: "bkg-mia",
+          customerName: "Mia Tran",
+          dogName: "Noodle",
+          dogSize: "Small",
           mobile: "0400 000 111",
-          email: "harper.demo@example.com",
+          email: "mia.tran@example.com",
           serviceId: SERVICE_IDS.bath,
           serviceName: "Bath & brush",
           priceCents: 6500,
           durationMinutes: 60,
           slotStart: bathStart,
-          notes: "Sample note: Noodle dislikes the dryer.",
+          notes: "Noodle is nervous of the dryer, towel finish please.",
           status: "confirmed",
           confirmationCode: "111111",
         },
@@ -116,16 +118,18 @@ export function createSeed(now: Date): DemoSnapshot {
     bookings.push(
       sampleBooking(
         {
-          id: "bkg-quinn",
-          customerName: "Sample Quinn",
+          id: "bkg-sam",
+          customerName: "Sam Okafor",
+          dogName: "Wattle",
+          dogSize: "Medium",
           mobile: "0400 000 222",
-          email: "quinn.sample@example.com",
+          email: "sam.okafor@example.com",
           serviceId: SERVICE_IDS.groom,
           serviceName: "Full groom",
           priceCents: 12000,
           durationMinutes: 90,
           slotStart: groomStart,
-          notes: "Sample note: Wattle is booked for a first full groom.",
+          notes: "Wattle's first full groom, keep it short and calm.",
           status: "pending",
           confirmationCode: "222222",
         },
@@ -139,10 +143,12 @@ export function createSeed(now: Date): DemoSnapshot {
     bookings.push(
       sampleBooking(
         {
-          id: "bkg-avery",
-          customerName: "Demo Avery",
+          id: "bkg-priya",
+          customerName: "Priya Nair",
+          dogName: "Biscuit",
+          dogSize: "Large",
           mobile: "0400 000 333",
-          email: "avery.demo@example.com",
+          email: "priya.nair@example.com",
           serviceId: SERVICE_IDS.nails,
           serviceName: "Nail and paw tidy",
           priceCents: 3000,

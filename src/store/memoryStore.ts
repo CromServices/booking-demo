@@ -59,6 +59,8 @@ export class MemoryBookingStore implements BookingStore {
   async createBooking(input: CreateBookingInput): Promise<Booking> {
     const errors = validateBookingForm({
       name: input.customerName,
+      dogName: input.dogName,
+      dogSize: input.dogSize,
       mobile: input.mobile,
       email: input.email,
       serviceId: input.serviceId,
@@ -77,6 +79,8 @@ export class MemoryBookingStore implements BookingStore {
     const booking: Booking = {
       id: newId("bkg"),
       customerName: input.customerName.trim(),
+      dogName: input.dogName.trim(),
+      dogSize: input.dogSize,
       mobile,
       email: input.email.trim().toLowerCase(),
       serviceId: service.id,

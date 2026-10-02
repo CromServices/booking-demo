@@ -1,5 +1,6 @@
 import { useLayoutEffect, type ReactNode } from "react";
 import { HashLink } from "../hashRouter";
+import { CromCredit } from "./CromCredit";
 
 const BANNER =
   "Demo site by Crom Services. Not a real business. Sample data only. Emails are simulated.";
@@ -52,7 +53,9 @@ export function Layout({ children }: { children: ReactNode }) {
       </main>
       <footer className="site-footer">
         <div className="wrap footer-grid">
-          <p>Crom Services · Australia</p>
+          <p>
+            <CromCredit />
+          </p>
           <p>
             <a href="mailto:cromservices@gmail.com">cromservices@gmail.com</a>
           </p>

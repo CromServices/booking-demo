@@ -4,7 +4,7 @@
 
 A public demo booking site and admin desk for **Saltbush Dog Grooming**, an invented Australian salon. It is a Crom Services portfolio piece. It is not a real business. Prices, customers, and appointments are sample data. Confirmation emails are simulated on screen and are never sent.
 
-Live demo (after this repo is on `main` and GitHub Pages has deployed):
+Live demo:
 
 https://cromservices.github.io/booking-demo/
 

@@ -75,6 +75,7 @@ export interface BookingStore {
   createBooking(input: CreateBookingInput): Promise<Booking>;
   confirmBooking(id: string, code: string): Promise<Booking>;
   updateBooking(id: string, patch: BookingPatch): Promise<Booking>;
+  deleteBooking(id: string): Promise<void>;
   saveService(input: ServiceInput): Promise<Service>;
   removeService(id: string): Promise<void>;
   resetDemoData(): Promise<void>;

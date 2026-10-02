@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from "react";
+import { maskEmail, maskMobile } from "../domain/mask";
 import { Field } from "../components/Field";
 import { useDocumentTitle } from "../components/useDocumentTitle";
 import { formatAud, formatDuration, formatSlotLong } from "../domain/format";
@@ -188,6 +189,12 @@ export function AdminPage() {
                         }
                         onCancel={() =>
                           void run(booking.id, () => store.updateBooking(booking.id, { status: "cancelled" }))
+                        }
+                        onDelete={() =>
+                          void run(booking.id, async () => {
+                            await store.deleteBooking(booking.id);
+                            if (rescheduleId === booking.id) setRescheduleId(null);
+                          })
                         }
                         onToggleReschedule={() => {
                           setRescheduleId((current) => (current === booking.id ? null : booking.id));
@@ -404,6 +411,7 @@ function BookingCard({
   openSlots,
   onApprove,
   onCancel,
+  onDelete,
   onToggleReschedule,
   onNextSlot,
   onSaveReschedule,
@@ -415,6 +423,7 @@ function BookingCard({
   openSlots: { start: string }[];
   onApprove: () => void;
   onCancel: () => void;
+  onDelete: () => void;
   onToggleReschedule: () => void;
   onNextSlot: (value: string) => void;
   onSaveReschedule: () => void;
@@ -423,6 +432,11 @@ function BookingCard({
   const dogName = typeof booking.dogName === "string" ? booking.dogName.trim() : "";
   const dogSize = typeof booking.dogSize === "string" ? booking.dogSize : "";
   const dog = dogName && dogSize ? `${dogName} · ${dogSize}` : dogName || dogSize || "Not recorded";
+  const [revealed, setRevealed] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const contactId = `contact-${booking.id}`;
+  const mobile = typeof booking.mobile === "string" ? booking.mobile : "";
+  const email = typeof booking.email === "string" ? booking.email : "";
   return (
     <article className="booking-card" aria-label={`Booking for ${booking.customerName} at ${when}`}>
       <header className="booking-head">
@@ -446,9 +460,18 @@ function BookingCard({
         </div>
         <div>
           <dt>Contact</dt>
-          <dd>
-            {booking.mobile} · {booking.email}
+          <dd id={contactId}>
+            {revealed ? mobile : maskMobile(mobile)} · {revealed ? email : maskEmail(email)}
           </dd>
+          <button
+            type="button"
+            className="button button-ghost"
+            aria-expanded={revealed}
+            aria-controls={contactId}
+            onClick={() => setRevealed((current) => !current)}
+          >
+            {revealed ? "Hide details" : "Show details"}
+          </button>
         </div>
         {booking.notes ? (
           <div>
@@ -472,6 +495,15 @@ function BookingCard({
             Cancel
           </button>
         ) : null}
+        <button
+          type="button"
+          className="button button-danger"
+          aria-label={`Delete booking for ${booking.customerName}`}
+          disabled={busy}
+          onClick={() => setConfirmDelete(true)}
+        >
+          Delete booking
+        </button>
         {booking.status !== "cancelled" ? (
           <button
             type="button"
@@ -485,6 +517,27 @@ function BookingCard({
           </button>
         ) : null}
       </div>
+      {confirmDelete ? (
+        <div className="confirm-inline" role="group" aria-label={`Confirm deletion of ${booking.customerName}`}>
+          <p>Delete this booking?</p>
+          <div className="hero-actions">
+            <button
+              type="button"
+              className="button button-danger"
+              disabled={busy}
+              onClick={() => {
+                onDelete();
+                setConfirmDelete(false);
+              }}
+            >
+              Yes, delete
+            </button>
+            <button type="button" className="button button-ghost" disabled={busy} onClick={() => setConfirmDelete(false)}>
+              Keep it
+            </button>
+          </div>
+        </div>
+      ) : null}
       {rescheduleOpen ? (
         <form
           className="reschedule"

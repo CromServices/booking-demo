@@ -36,7 +36,7 @@ Hash routes keep deep links working on GitHub Pages:
 Pages never read `localStorage` themselves. They call a `BookingStore` (`src/store/types.ts`):
 
 - `listServices`, `listBookings`
-- `createBooking`, `confirmBooking`, `updateBooking`
+- `createBooking`, `confirmBooking`, `updateBooking`, `deleteBooking`
 - `saveService`, `removeService`
 - `resetDemoData`
 - `subscribe` so the UI refreshes after a change

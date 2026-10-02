@@ -2,15 +2,7 @@
 
 @layer defaults {
   :root {
-    /*
-      Default Crom Services firm light scheme.
-      Measured from https://cromservices.lovable.app/ on 1 Oct 2026.
-      A shared sheet is planned at https://cromservices.github.io/crom-shared/theme.css
-      but is not live yet. When that file exists, this light token block can be
-      replaced by:
-      @import url("https://cromservices.github.io/crom-shared/theme.css");
-      Do not request that URL until it is published.
-    */
+    /* Source: crom-shared theme.css v1 (https://cromservices.github.io/crom-shared/theme.css), firm site https://cromservices.com.au/ */
     color-scheme: light dark;
     --bg: #f3f2ef;
     --card: #ffffff;
@@ -21,8 +13,9 @@
     --primary: #111111;
     --primary-fg: #ffffff;
     --primary-hover: #333333;
-    --outline-hover: rgba(17, 17, 17, 0.06);
-    --ring: var(--fg);
+    --outline-hover: rgba(17,17,17,.06);
+    --ring: #111111;
+    --credit-fg: #4a5752;
     --ring-width: 2px;
     /* Same value in the dark scheme. Only for a 6px status or step dot. */
     --accent-green: #4caf78;
@@ -111,8 +104,10 @@
       --border: #38352e;
       --primary: #f3f1ec;
       --primary-fg: #111111;
-      --primary-hover: #ffffff;
-      --outline-hover: rgba(243, 241, 236, 0.08);
+      --primary-hover: #e3e0d8;
+      --outline-hover: rgba(243,241,236,.08);
+      --ring: #f3f1ec;
+      --credit-fg: #cdd6d1;
       --on-primary-muted: rgba(17, 17, 17, 0.62);
       --danger: #f0c8c4;
       --danger-border: #6a4542;

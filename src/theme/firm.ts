@@ -13,7 +13,7 @@ export const defaultLogo: HeaderLogo = {
   height: 481,
 };
 
-/** Dark page background from the firm brand tokens. */
+/** Dark page background from crom-shared theme.css v1 (`--bg`). */
 export const FIRM_DARK_BG = "#1b1a17";
 
 function declarations(tokens: Record<string, string>, indent: string): string {

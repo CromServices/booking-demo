@@ -29,6 +29,8 @@ The dev server uses the GitHub Pages base path, so open `http://localhost:5173/b
 
 Copy `src/config/saltbush.ts`, or start from `src/config/examples/harbour-press.ts` if you want the firm skin. Edit the business, services, hours, and extra fields. Point the export in `src/site.config.ts` at your file, then push to `main`.
 
+The firm tokens come from crom-shared v1 (https://cromservices.github.io/crom-shared/theme.css) and should be re-synced from there.
+
 Harbour Press is a second fictional sample. It is not the deployed site. It leaves the theme unset, so the firm light and dark skins, and the firm logo, apply.
 
 `npm run build` writes the production bundle. `npm run preview` serves it.

@@ -1,6 +1,5 @@
 import { useLayoutEffect, type ReactNode } from "react";
 import { HashLink } from "../hashRouter";
-import { Mark } from "./Mark";
 
 const BANNER =
   "Demo site by Crom Services. Not a real business. Sample data only. Emails are simulated.";
@@ -31,11 +30,13 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="site-header">
         <div className="wrap header-row">
           <a className="brand" href="#/">
-            <Mark />
-            <span>
-              <strong>Saltbush</strong>
-              <small>Dog Grooming</small>
-            </span>
+            <img
+              className="brand-lockup"
+              src={`${import.meta.env.BASE_URL}saltbush-lockup-light.svg`}
+              alt="Saltbush Dog Grooming"
+              width={335}
+              height={76}
+            />
           </a>
           <nav className="primary-nav" aria-label="Primary">
             <HashLink to="/">Home</HashLink>

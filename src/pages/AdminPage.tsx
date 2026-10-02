@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useSiteConfig } from "../config/context";
+import { extraSummary } from "../config/template";
 import { maskEmail, maskMobile } from "../domain/mask";
 import { Field } from "../components/Field";
 import { useDocumentTitle } from "../components/useDocumentTitle";
 import { formatAud, formatDuration, formatSlotLong } from "../domain/format";
+import { calendarWindow } from "../domain/hours";
 import { buildCalendar } from "../domain/slots";
 import { isOnOrAfterStudioDay } from "../domain/time";
 import {
@@ -47,9 +50,10 @@ function focusAfterBookingDelete(nextId: string | null, previousId: string | nul
 }
 
 export function AdminPage() {
+  const config = useSiteConfig();
   const store = useBookingStore();
   const { ready, services, bookings } = useSnapshot();
-  useDocumentTitle("Demo desk · Saltbush");
+  useDocumentTitle(config.titles.admin);
 
   const [filter, setFilter] = useState<Filter>("all");
   const [rescheduleId, setRescheduleId] = useState<string | null>(null);
@@ -80,10 +84,11 @@ export function AdminPage() {
       now: store.now(),
       durationMinutes: rescheduleBooking.durationMinutes,
       bookings: bookings.filter((booking) => booking.id !== rescheduleBooking.id),
+      ...calendarWindow(config),
     })
       .flatMap((day) => day.slots)
       .filter((slot) => slot.available && slot.start !== rescheduleBooking.slotStart);
-  }, [bookings, rescheduleBooking, store]);
+  }, [bookings, config, rescheduleBooking, store]);
 
   async function run(id: string, task: () => Promise<unknown>) {
     setActionId(id);
@@ -148,15 +153,12 @@ export function AdminPage() {
   return (
     <>
       <section className="page-intro">
-        <p className="eyebrow">Demo · no login</p>
-        <h1>Demo desk</h1>
-        <p>
-          No login. This page is part of the public demo and only changes sample data in this
-          browser. Approve, cancel, or move a booking, or edit the menu.
-        </p>
+        <p className="eyebrow">{config.admin.eyebrow}</p>
+        <h1>{config.admin.title}</h1>
+        <p>{config.admin.intro}</p>
       </section>
 
-      {!ready ? <p role="status">Loading sample data…</p> : null}
+      {!ready ? <p role="status">{config.loading}</p> : null}
 
       <div className="admin-grid">
         <section aria-labelledby="bookings-heading">
@@ -198,6 +200,13 @@ export function AdminPage() {
                     <li key={booking.id}>
                       <BookingCard
                         booking={booking}
+                        extraHeading={config.extras.heading}
+                        extraValue={extraSummary(
+                          booking.extras,
+                          config.extraFields,
+                          config.extras.empty,
+                          config.extras.separator,
+                        )}
                         busy={actionId === booking.id}
                         rescheduleOpen={rescheduleId === booking.id}
                         nextSlot={nextSlot}
@@ -429,6 +438,8 @@ export function AdminPage() {
 
 function BookingCard({
   booking,
+  extraHeading,
+  extraValue,
   busy,
   rescheduleOpen,
   nextSlot,
@@ -441,6 +452,8 @@ function BookingCard({
   onSaveReschedule,
 }: {
   booking: Booking;
+  extraHeading: string;
+  extraValue: string;
   busy: boolean;
   rescheduleOpen: boolean;
   nextSlot: string;
@@ -453,9 +466,6 @@ function BookingCard({
   onSaveReschedule: () => void;
 }) {
   const when = formatSlotLong(booking.slotStart);
-  const dogName = typeof booking.dogName === "string" ? booking.dogName.trim() : "";
-  const dogSize = typeof booking.dogSize === "string" ? booking.dogSize : "";
-  const dog = dogName && dogSize ? `${dogName} · ${dogSize}` : dogName || dogSize || "Not recorded";
   const [revealed, setRevealed] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const promptRef = useRef<HTMLDivElement>(null);
@@ -477,8 +487,8 @@ function BookingCard({
       </header>
       <dl className="booking-facts">
         <div>
-          <dt>Dog</dt>
-          <dd>{dog}</dd>
+          <dt>{extraHeading}</dt>
+          <dd>{extraValue}</dd>
         </div>
         <div>
           <dt>Service</dt>

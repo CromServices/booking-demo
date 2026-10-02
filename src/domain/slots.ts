@@ -39,9 +39,11 @@ export function buildCalendar(args: {
   bookings: SlotBooking[];
   horizonDays?: number;
   stepMinutes?: number;
+  openingHours?: Record<number, { openMin: number; closeMin: number } | null>;
 }): CalendarDay[] {
   const horizon = args.horizonDays ?? HORIZON_DAYS;
   const step = args.stepMinutes ?? SLOT_STEP_MINUTES;
+  const openingHours = args.openingHours ?? OPENING_HOURS;
   const startKey = studioDateKey(args.now);
   const blocking = args.bookings.filter((booking) => booking.status !== "cancelled");
   const days: CalendarDay[] = [];
@@ -49,7 +51,7 @@ export function buildCalendar(args: {
   for (let offset = 0; offset < horizon; offset += 1) {
     const dateKey = addDaysToKey(startKey, offset);
     const label = formatDayLabel(dateKey);
-    const hours = OPENING_HOURS[weekdayIndexForKey(dateKey)];
+    const hours = openingHours[weekdayIndexForKey(dateKey)];
     if (!hours) {
       days.push({ dateKey, ...label, closed: true, slots: [] });
       continue;

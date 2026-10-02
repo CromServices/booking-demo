@@ -1,6 +1,10 @@
+import type { SiteConfig } from "../config/types";
+import { siteConfig } from "../site.config";
 import { generateConfirmationCode } from "../domain/code";
+import { calendarWindow } from "../domain/hours";
 import { buildCalendar } from "../domain/slots";
 import {
+  firstErrorMessage,
   hasErrors,
   normalizeAuMobile,
   validateBookingForm,
@@ -36,6 +40,7 @@ export class MemoryBookingStore implements BookingStore {
     initial: DemoSnapshot,
     private readonly clock: () => Date = () => new Date(),
     private readonly random: () => number = Math.random,
+    private readonly config: SiteConfig = siteConfig,
   ) {
     this.data = structuredClone(initial);
   }
@@ -57,18 +62,23 @@ export class MemoryBookingStore implements BookingStore {
   }
 
   async createBooking(input: CreateBookingInput): Promise<Booking> {
-    const errors = validateBookingForm({
-      name: input.customerName,
-      dogName: input.dogName,
-      dogSize: input.dogSize,
-      mobile: input.mobile,
-      email: input.email,
-      serviceId: input.serviceId,
-      slotStart: input.slotStart,
-      notes: input.notes,
-    });
+    const extras = Object.fromEntries(
+      this.config.extraFields.map((field) => [field.id, (input.extras[field.id] ?? "").trim()]),
+    );
+    const errors = validateBookingForm(
+      {
+        name: input.customerName,
+        mobile: input.mobile,
+        email: input.email,
+        serviceId: input.serviceId,
+        slotStart: input.slotStart,
+        notes: input.notes,
+        extras,
+      },
+      this.config.extraFields,
+    );
     if (hasErrors(errors)) {
-      throw new StoreError(Object.values(errors)[0] ?? "Check the booking details.");
+      throw new StoreError(firstErrorMessage(errors));
     }
     const service = this.data.services.find((item) => item.id === input.serviceId && item.active);
     if (!service) throw new StoreError("Choose a service that is on the menu.");
@@ -79,8 +89,7 @@ export class MemoryBookingStore implements BookingStore {
     const booking: Booking = {
       id: newId("bkg"),
       customerName: input.customerName.trim(),
-      dogName: input.dogName.trim(),
-      dogSize: input.dogSize,
+      extras,
       mobile,
       email: input.email.trim().toLowerCase(),
       serviceId: service.id,
@@ -203,7 +212,7 @@ export class MemoryBookingStore implements BookingStore {
   }
 
   async resetDemoData(): Promise<void> {
-    this.data = createSeed(this.now());
+    this.data = createSeed(this.now(), this.config);
     this.emit();
   }
 
@@ -233,6 +242,7 @@ export class MemoryBookingStore implements BookingStore {
     const calendar = buildCalendar({
       now: this.now(),
       durationMinutes,
+      ...calendarWindow(this.config),
       bookings: this.data.bookings
         .filter((booking) => booking.id !== ignoreBookingId)
         .map((booking) => ({

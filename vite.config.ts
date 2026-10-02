@@ -1,12 +1,48 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vitest/config";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { defineConfig, type Plugin } from "vitest/config";
+import { harbourPress } from "./src/config/examples/harbour-press.ts";
+import { saltbush } from "./src/config/saltbush.ts";
+import { applySiteHead } from "./src/theme/firm.ts";
 
-export default defineConfig({
-  base: "/booking-demo/",
-  plugins: [react()],
-  test: {
-    environment: "jsdom",
-    setupFiles: "./src/test/setup.ts",
-    css: false,
-  },
+const root = path.dirname(fileURLToPath(import.meta.url));
+const siteConfigPath = path.join(root, "src/site.config.ts");
+const exampleEntryPath = path.join(root, "src/config/examples/harbour-press-entry.ts");
+
+function exampleConfigPlugin(enabled: boolean): Plugin {
+  return {
+    name: "example-site-config",
+    enforce: "pre",
+    resolveId(source, importer) {
+      if (!enabled || !importer || !source.includes("site.config")) return null;
+      const resolved = path.resolve(path.dirname(importer), source);
+      const candidate = resolved.endsWith(".ts") ? resolved : `${resolved}.ts`;
+      if (path.normalize(candidate) !== path.normalize(siteConfigPath)) return null;
+      return exampleEntryPath;
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => {
+  const example = mode === "example";
+  const site = example ? harbourPress : saltbush;
+  return {
+    base: "/booking-demo/",
+    plugins: [
+      exampleConfigPlugin(example),
+      react(),
+      {
+        name: "site-head",
+        transformIndexHtml(html) {
+          return applySiteHead(html, site);
+        },
+      },
+    ],
+    test: {
+      environment: "jsdom",
+      setupFiles: "./src/test/setup.ts",
+      css: false,
+    },
+  };
 });

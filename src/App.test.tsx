@@ -20,4 +20,17 @@ describe("hash routing", () => {
       /^https:\/\/cromservices\.com\.au\/brand\/credit\/crom-credit-mark-ink@1x\.png$/,
     );
   });
+
+  it("shows the hero art as an SVG with a raster fallback", async () => {
+    renderAt("#/", makeStore());
+    const hero = await screen.findByRole("img", {
+      name: "Illustration: a fluffy cream dog in a rust bandana sitting on a sand dune by the sea, with saltbush shrubs and a low sun",
+    });
+    expect(hero).toHaveAttribute("width", "720");
+    expect(hero).toHaveAttribute("height", "840");
+    expect(hero.getAttribute("src")).toMatch(/saltbush-v2-hero-720x840\.webp$/);
+    const source = hero.closest("picture")?.querySelector("source");
+    expect(source?.getAttribute("type")).toBe("image/svg+xml");
+    expect(source?.getAttribute("srcset")).toMatch(/saltbush-v2-hero\.svg$/);
+  });
 });

@@ -29,11 +29,12 @@ describe("site config", () => {
     expect(siteConfig.credit).toBe("light");
     expect(siteConfig.theme?.dark).toBe(false);
     expect(siteConfig.headerArt).toMatchObject({
-      src: "saltbush-header-light.svg",
-      width: 327,
-      height: 76,
+      src: "saltbush-v2-header-light.svg",
+      width: 281,
+      height: 80,
       alt: "Saltbush Dog Grooming",
     });
+    expect(siteConfig.heroArt).toMatchObject({ src: "saltbush-v2-hero.svg", width: 720, height: 840 });
     expect(siteConfig.extraFields.map((field) => field.id)).toEqual(["dogName", "dogSize"]);
   });
 
@@ -56,6 +57,29 @@ describe("site config", () => {
     expect(head).toContain('data-color-scheme="light"');
     expect(head).toContain("<title>Saltbush Dog Grooming · Demo</title>");
     expect(head).toContain("--footer-bg: #ebe4d8");
+    expect(head).toContain("family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Outfit");
+    expect(head).toContain("display=swap");
+    expect(head).toContain('<link rel="icon" href="%BASE_URL%saltbush-v2-favicon.svg"');
+    expect(head).toContain('<link rel="apple-touch-icon" href="%BASE_URL%saltbush-v2-apple-touch-180.png"');
+    expect(css).toContain('font-family: "Bricolage Fallback";');
+    expect(css).toContain("size-adjust: 92%;");
+    expect(css).toContain("--h1-weight: 750");
+    expect(css).toContain("--lockup-height: 52px");
+  });
+
+  it("points the head icons at another config's files", () => {
+    const head = applySiteHead(indexHtml, {
+      ...harbourPress,
+      icons: { favicon: "press-icon.svg", appleTouch: "https://example.com/touch.png" },
+    });
+    expect(head).toContain('<link rel="icon" href="%BASE_URL%press-icon.svg"');
+    expect(head).toContain('<link rel="apple-touch-icon" href="https://example.com/touch.png"');
+    const built = applySiteHead(
+      indexHtml.replaceAll("%BASE_URL%", "/booking-demo/"),
+      { ...harbourPress, icons: { favicon: "press-icon.svg" } },
+    );
+    expect(built).toContain('<link rel="icon" href="/booking-demo/press-icon.svg"');
+    expect(built).toContain('<link rel="apple-touch-icon" href="/booking-demo/saltbush-v2-apple-touch-180.png"');
   });
 
   it("keeps the firm dark colours and the shared green dot token", () => {
@@ -88,9 +112,9 @@ describe("default logo", () => {
     );
     expect(document.querySelector("picture")).toBeNull();
     const logo = screen.getByRole("img", { name: "Saltbush Dog Grooming" });
-    expect(logo).toHaveAttribute("width", "327");
-    expect(logo).toHaveAttribute("height", "76");
-    expect(logo.getAttribute("src")).toContain("saltbush-header-light.svg");
+    expect(logo).toHaveAttribute("width", "281");
+    expect(logo).toHaveAttribute("height", "80");
+    expect(logo.getAttribute("src")).toContain("saltbush-v2-header-light.svg");
     expect(screen.getAllByRole("link", { name: "Built by Crom Services" })).toHaveLength(1);
   });
 

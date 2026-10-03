@@ -1,10 +1,31 @@
+import { assetSrc, imageType } from "../config/assets";
 import { fillTemplate } from "../config/template";
 import { useSiteConfig } from "../config/context";
+import type { HeroArt } from "../config/types";
 import { formatAud, formatDuration } from "../domain/format";
 import { HashLink } from "../hashRouter";
-import { StudioScene } from "../components/Mark";
 import { useDocumentTitle } from "../components/useDocumentTitle";
 import { useSnapshot } from "../store/context";
+
+function HeroImage({ art }: { art: HeroArt }) {
+  const image = (
+    <img
+      className="scene"
+      src={assetSrc(art.fallback ?? art.src)}
+      alt={art.alt}
+      width={art.width}
+      height={art.height}
+      decoding="async"
+    />
+  );
+  if (!art.fallback) return image;
+  return (
+    <picture>
+      <source srcSet={assetSrc(art.src)} type={imageType(art.src)} />
+      {image}
+    </picture>
+  );
+}
 
 export function HomePage() {
   const config = useSiteConfig();
@@ -31,7 +52,7 @@ export function HomePage() {
           </div>
         </div>
         <div className="hero-panel">
-          {config.heroArt === "saltbush-studio" ? <StudioScene /> : null}
+          {config.heroArt ? <HeroImage art={config.heroArt} /> : null}
           <p>{home.heroNote}</p>
         </div>
       </section>

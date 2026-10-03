@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="public/saltbush-lockup-dark-transparent.svg">
-  <img alt="Saltbush Dog Grooming" src="public/saltbush-lockup-light-transparent.svg" width="335">
+  <source media="(prefers-color-scheme: dark)" srcset="public/saltbush-v2-readme-dark.svg">
+  <img alt="Saltbush Dog Grooming" src="public/saltbush-v2-readme-light.svg" width="316">
 </picture>
 
 # Booking demo
@@ -27,7 +27,7 @@ The dev server uses the GitHub Pages base path, so open `http://localhost:5173/b
 
 ## Reuse for a new job
 
-Copy `src/config/saltbush.ts`, or start from `src/config/examples/harbour-press.ts` if you want the firm skin. Edit the business, services, hours, and extra fields. Point the export in `src/site.config.ts` at your file, then push to `main`.
+Copy `src/config/saltbush.ts`, or start from `src/config/examples/harbour-press.ts` if you want the firm skin. Edit the business, services, hours, and extra fields. Brand art and type are config too: `headerArt`, `heroArt`, `icons`, `fontHref`, `fallbackFonts`, and the theme tokens (`--font-display`, heading weights, `--lockup-height`). Put the files in `public/`. Point the export in `src/site.config.ts` at your file, then push to `main`.
 
 The firm tokens come from crom-shared v1 (https://cromservices.github.io/crom-shared/theme.css) and should be re-synced from there.
 

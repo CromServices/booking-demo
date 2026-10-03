@@ -116,10 +116,10 @@ export const saltbush = {
     height: 840,
     alt: "Illustration: a fluffy cream dog in a rust bandana sitting on a sand dune by the sea, with saltbush shrubs and a low sun",
   },
-  icons: {
-    favicon: "saltbush-v2-favicon.svg",
-    appleTouch: "saltbush-v2-apple-touch-180.png",
-  },
+  icons: [
+    { rel: "icon", href: "saltbush-v2-favicon.svg", type: "image/svg+xml" },
+    { rel: "apple-touch-icon", href: "saltbush-v2-apple-touch-180.png" },
+  ],
   fontHref:
     "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Outfit:wght@400;500;600&display=swap",
   fallbackFonts: [

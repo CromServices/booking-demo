@@ -1,17 +1,33 @@
-import type { HeaderLogo, SiteConfig } from "../config/types.ts";
+import type { HeaderLogo, SiteConfig, SiteIcons } from "../config/types.ts";
 
 /**
  * Default firm logo. The files are hosted with the Crom Services brand kit.
  * They may not resolve until that kit is published. The starter still renders
  * the picture element so a published file appears without a code change.
  */
+/** Hosted Crom brand files. Move a set by changing one base here. */
+export const FIRM_BRAND = {
+  logoBase: "https://cromservices.com.au/brand/logo/",
+  faviconBase: "https://cromservices.github.io/crom-shared/brand/favicon/",
+} as const;
+
 export const defaultLogo: HeaderLogo = {
-  light: "https://cromservices.com.au/brand/logo/crom-logo-v26-ink.png",
-  dark: "https://cromservices.com.au/brand/logo/crom-logo-v26-white.png",
+  light: `${FIRM_BRAND.logoBase}crom-logo-v26-ink.png`,
+  dark: `${FIRM_BRAND.logoBase}crom-logo-v26-white.png`,
   alt: "Crom Services",
   width: 526,
   height: 481,
 };
+
+/**
+ * Starter default icons: the hosted Crom icon, for demos and preview builds only.
+ * A client config sets its own `icons`.
+ */
+export const defaultIcons: SiteIcons = [
+  { rel: "icon", href: `${FIRM_BRAND.faviconBase}favicon.ico`, sizes: "any" },
+  { rel: "icon", href: `${FIRM_BRAND.faviconBase}favicon.svg`, type: "image/svg+xml" },
+  { rel: "apple-touch-icon", href: `${FIRM_BRAND.faviconBase}apple-touch-icon.png` },
+];
 
 /** Dark page background from crom-shared theme.css v1 (`--bg`). */
 export const FIRM_DARK_BG = "#1b1a17";
@@ -79,35 +95,23 @@ function replaceWhenDifferent(html: string, pattern: RegExp, current: string, ne
   return html.replace(pattern, wrap(escapeHtml(nextValue)));
 }
 
-/**
- * Points an icon link at a config file. A relative file keeps the link's base
- * prefix (%BASE_URL% in the template, or the resolved base during a build).
- */
-function replaceIcon(html: string, rel: string, file: string | undefined): string {
-  if (!file) return html;
-  const pattern = new RegExp(`(<link rel="${rel}" href=")([^"]*)(")`);
-  const match = html.match(pattern);
-  if (!match) return html;
-  const current = match[2];
-  let nextHref: string;
-  if (/^https?:\/\//.test(file)) {
-    nextHref = file;
-  } else {
-    const prefix =
-      current.startsWith("%BASE_URL%") || /^https?:\/\//.test(current)
-        ? "%BASE_URL%"
-        : current.slice(0, current.lastIndexOf("/") + 1);
-    nextHref = `${prefix}${file.replace(/^\//, "")}`;
-  }
-  if (nextHref === current) return html;
-  return html.replace(match[0], `${match[1]}${escapeHtml(nextHref)}${match[3]}`);
+/** Head links for the config's icons, or the Crom default. Relative files sit under base. */
+export function iconLinks(config: SiteConfig, base = "%BASE_URL%"): string[] {
+  return (config.icons ?? defaultIcons).map((icon) => {
+    const href = /^https?:\/\//.test(icon.href) ? icon.href : `${base}${icon.href.replace(/^\//, "")}`;
+    const attrs = [`rel="${icon.rel}"`, `href="${escapeHtml(href)}"`];
+    if (icon.type) attrs.push(`type="${escapeHtml(icon.type)}"`);
+    if (icon.sizes) attrs.push(`sizes="${escapeHtml(icon.sizes)}"`);
+    return `<link ${attrs.join(" ")} />`;
+  });
 }
 
 /**
  * Fills the document head from the active config.
  * Saltbush already matches index.html, so its text, font, and theme-color stay put.
+ * Icon links are always added from the config (index.html has none).
  */
-export function applySiteHead(html: string, config: SiteConfig): string {
+export function applySiteHead(html: string, config: SiteConfig, base = "%BASE_URL%"): string {
   let next = html;
   if (config.theme?.dark === false && !next.includes("data-color-scheme=")) {
     next = next.replace('<html lang="en-AU">', '<html lang="en-AU" data-color-scheme="light">');
@@ -140,8 +144,13 @@ export function applySiteHead(html: string, config: SiteConfig): string {
     (value) => `href="${value}"`,
   );
 
-  next = replaceIcon(next, "icon", config.icons?.favicon);
-  next = replaceIcon(next, "apple-touch-icon", config.icons?.appleTouch);
+  // index.html carries no icons. They come from the config, or the Crom default.
+  const titleLine = next.match(/^([ \t]*)<title>[\s\S]*?<\/title>[^\n]*$/m);
+  if (titleLine && !/<link rel="(icon|apple-touch-icon)"/.test(next)) {
+    const indent = titleLine[1];
+    const links = iconLinks(config, base).map((link) => `\n${indent}${link}`).join("");
+    next = next.replace(titleLine[0], `${titleLine[0]}${links}`);
+  }
 
   const css = themeOverrideCss(config);
   if (css && !next.includes('id="site-theme"')) {

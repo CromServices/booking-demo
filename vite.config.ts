@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vitest/config";
 import { harbourPress } from "./src/config/examples/harbour-press.ts";
-import { saltbush } from "./src/config/saltbush.ts";
+import { siteConfig } from "./src/site.config.ts";
 import { applySiteHead } from "./src/theme/firm.ts";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -26,16 +26,18 @@ function exampleConfigPlugin(enabled: boolean): Plugin {
 
 export default defineConfig(({ mode }) => {
   const example = mode === "example";
-  const site = example ? harbourPress : saltbush;
+  // The head follows the same config as the app: src/site.config.ts, or Harbour Press for the example build.
+  const site = example ? harbourPress : siteConfig;
+  const base = "/booking-demo/";
   return {
-    base: "/booking-demo/",
+    base,
     plugins: [
       exampleConfigPlugin(example),
       react(),
       {
         name: "site-head",
         transformIndexHtml(html) {
-          return applySiteHead(html, site);
+          return applySiteHead(html, site, base);
         },
       },
     ],

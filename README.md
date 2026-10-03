@@ -27,7 +27,9 @@ The dev server uses the GitHub Pages base path, so open `http://localhost:5173/b
 
 ## Reuse for a new job
 
-Copy `src/config/saltbush.ts`, or start from `src/config/examples/harbour-press.ts` if you want the firm skin. Edit the business, services, hours, and extra fields. Brand art and type are config too: `headerArt`, `heroArt`, `icons`, `fontHref`, `fallbackFonts`, and the theme tokens (`--font-display`, heading weights, `--lockup-height`). Put the files in `public/`. Point the export in `src/site.config.ts` at your file, then push to `main`.
+Copy `src/config/saltbush.ts`, or start from `src/config/examples/harbour-press.ts` if you want the firm skin. Edit the business, services, hours, and extra fields. Brand art and type are config too: `headerArt`, `heroArt`, `icons`, `fontHref`, `fallbackFonts`, and the theme tokens (`--font-display`, heading weights, `--lockup-height`). Put the files in `public/`. Point the export in `src/site.config.ts` at your file, then push to `main`. The page head (title, description, theme colour, font link, icons) follows the same export.
+
+Icons: a config without `icons` gets the hosted Crom Services icon. That icon is for demos and preview builds only. A real client site must ship its own icon before go-live. If the client has no logo, Brand can make an initial-letter icon.
 
 The firm tokens come from crom-shared v1 (https://cromservices.github.io/crom-shared/theme.css) and should be re-synced from there.
 

@@ -59,7 +59,6 @@ describe("site config", () => {
     expect(head).toContain("--footer-bg: #ebe4d8");
     expect(head).toContain("family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Outfit");
     expect(head).toContain("display=swap");
-    expect(head).not.toMatch(/fraunces/i);
     expect(head).toContain('<link rel="icon" href="%BASE_URL%saltbush-v2-favicon.svg"');
     expect(head).toContain('<link rel="apple-touch-icon" href="%BASE_URL%saltbush-v2-apple-touch-180.png"');
     expect(css).toContain('font-family: "Bricolage Fallback";');

@@ -61,25 +61,29 @@ describe("site config", () => {
     expect(head).toContain("display=swap");
     expect(head).toContain('<link rel="icon" href="%BASE_URL%saltbush-v2-favicon.svg"');
     expect(head).toContain('<link rel="apple-touch-icon" href="%BASE_URL%saltbush-v2-apple-touch-180.png"');
+    expect(head).not.toContain("crom-shared/brand/favicon");
     expect(css).toContain('font-family: "Bricolage Fallback";');
     expect(css).toContain("size-adjust: 92%;");
     expect(css).toContain("--h1-weight: 750");
     expect(css).toContain("--lockup-height: 52px");
   });
 
-  it("points the head icons at another config's files", () => {
-    const head = applySiteHead(indexHtml, {
-      ...harbourPress,
-      icons: { favicon: "press-icon.svg", appleTouch: "https://example.com/touch.png" },
-    });
-    expect(head).toContain('<link rel="icon" href="%BASE_URL%press-icon.svg"');
-    expect(head).toContain('<link rel="apple-touch-icon" href="https://example.com/touch.png"');
-    const built = applySiteHead(
-      indexHtml.replaceAll("%BASE_URL%", "/booking-demo/"),
-      { ...harbourPress, icons: { favicon: "press-icon.svg" } },
+  it("uses the Crom demo icon unless a config brings its own", () => {
+    expect(indexHtml).not.toMatch(/rel="(icon|apple-touch-icon)"/);
+    const example = applySiteHead(indexHtml, harbourPress);
+    const base = "https://cromservices.github.io/crom-shared/brand/favicon/";
+    expect(example).toContain(`<link rel="icon" href="${base}favicon.ico" sizes="any" />`);
+    expect(example).toContain(`<link rel="icon" href="${base}favicon.svg" type="image/svg+xml" />`);
+    expect(example).toContain(`<link rel="apple-touch-icon" href="${base}apple-touch-icon.png" />`);
+    expect(example).not.toMatch(/saltbush/i);
+
+    const own = applySiteHead(
+      indexHtml,
+      { ...harbourPress, icons: [{ rel: "icon", href: "press-icon.svg", type: "image/svg+xml" }] },
+      "/booking-demo/",
     );
-    expect(built).toContain('<link rel="icon" href="/booking-demo/press-icon.svg"');
-    expect(built).toContain('<link rel="apple-touch-icon" href="/booking-demo/saltbush-v2-apple-touch-180.png"');
+    expect(own).toContain('<link rel="icon" href="/booking-demo/press-icon.svg" type="image/svg+xml" />');
+    expect(own).not.toContain("crom-shared/brand/favicon");
   });
 
   it("keeps the firm dark colours and the shared green dot token", () => {

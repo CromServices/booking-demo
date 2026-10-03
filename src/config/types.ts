@@ -43,11 +43,17 @@ export type HeroArt = {
   alt: string;
 };
 
-/** Browser tab and home-screen icons, relative to public/ or absolute URLs. */
-export type SiteIcons = {
-  favicon: string;
-  appleTouch?: string;
+/** One icon link in the document head. */
+export type IconLink = {
+  rel: "icon" | "apple-touch-icon";
+  /** A file in public/ or an absolute URL. */
+  href: string;
+  type?: string;
+  sizes?: string;
 };
+
+/** Browser tab and home-screen icons. Omit to use the Crom demo icon (demos and previews only). */
+export type SiteIcons = readonly IconLink[];
 
 /** A local() fallback face, metric-matched so the web font swap barely moves text. */
 export type FallbackFontFace = {
@@ -115,7 +121,10 @@ export type SiteConfig = {
   logo?: HeaderLogo;
   /** Optional illustrated hero. Omit for a plain panel. */
   heroArt?: HeroArt;
-  /** Replaces the icons named in index.html. */
+  /**
+   * Head icon links. Defaults to the hosted Crom icon, which is for demos and
+   * previews only. A real client site ships its own icon before go-live.
+   */
   icons?: SiteIcons;
   fontHref: string;
   /** Extra @font-face rules, for example a metric-matched fallback for --font-display. */

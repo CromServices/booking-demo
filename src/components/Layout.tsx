@@ -1,19 +1,15 @@
 import { useLayoutEffect, type ReactNode } from "react";
+import { assetSrc } from "../config/assets";
 import { useSiteConfig } from "../config/context";
 import { HashLink } from "../hashRouter";
 import { defaultLogo } from "../theme/firm";
 import { CromCredit } from "./CromCredit";
 
-function assetSrc(src: string): string {
-  if (/^https?:\/\//.test(src)) return src;
-  return `${import.meta.env.BASE_URL}${src.replace(/^\//, "")}`;
-}
-
 function BrandMark() {
   const config = useSiteConfig();
   if (config.headerArt) {
     const art = config.headerArt;
-    return (
+    const lockup = (
       <img
         className="brand-lockup"
         src={assetSrc(art.src)}
@@ -21,6 +17,13 @@ function BrandMark() {
         width={art.width}
         height={art.height}
       />
+    );
+    if (!art.dark || config.theme?.dark === false) return lockup;
+    return (
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcSet={assetSrc(art.dark)} />
+        {lockup}
+      </picture>
     );
   }
   const logo = config.logo ?? defaultLogo;

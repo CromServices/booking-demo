@@ -22,6 +22,29 @@ function declarations(tokens: Record<string, string>, indent: string): string {
     .join("\n");
 }
 
+function cssString(value: string): string {
+  return `"${value.replaceAll("\\", "\\\\").replaceAll('"', '\\"')}"`;
+}
+
+/** @font-face rules for config.fallbackFonts. Empty when there are none. */
+export function fallbackFontCss(config: SiteConfig): string {
+  const faces = config.fallbackFonts ?? [];
+  return faces
+    .map((face) => {
+      const lines = [
+        `font-family: ${cssString(face.family)};`,
+        `src: ${face.local.map((name) => `local(${cssString(name)})`).join(", ")};`,
+        face.weight ? `font-weight: ${face.weight};` : "",
+        face.sizeAdjust ? `size-adjust: ${face.sizeAdjust};` : "",
+        face.ascentOverride ? `ascent-override: ${face.ascentOverride};` : "",
+        face.descentOverride ? `descent-override: ${face.descentOverride};` : "",
+        face.lineGapOverride ? `line-gap-override: ${face.lineGapOverride};` : "",
+      ].filter(Boolean);
+      return `@font-face {\n${lines.map((line) => `  ${line}`).join("\n")}\n}\n`;
+    })
+    .join("");
+}
+
 /** Site-layer overrides. Empty when the config keeps the firm defaults. */
 export function themeOverrideCss(config: SiteConfig): string {
   const light = config.theme?.light;
@@ -38,8 +61,9 @@ export function themeOverrideCss(config: SiteConfig): string {
       `@media (prefers-color-scheme: dark) {\n  :root:not([data-color-scheme="light"]) {\n${declarations(dark, "    ")}\n  }\n}`,
     );
   }
-  if (blocks.length === 0) return "";
-  return `@layer defaults, site;\n@layer site {\n${blocks.join("\n")}\n}\n`;
+  const faces = fallbackFontCss(config);
+  if (blocks.length === 0) return faces;
+  return `@layer defaults, site;\n${faces}@layer site {\n${blocks.join("\n")}\n}\n`;
 }
 
 function escapeHtml(value: string): string {
@@ -53,6 +77,30 @@ function escapeHtml(value: string): string {
 function replaceWhenDifferent(html: string, pattern: RegExp, current: string, nextValue: string, wrap: (value: string) => string): string {
   if (current === nextValue) return html;
   return html.replace(pattern, wrap(escapeHtml(nextValue)));
+}
+
+/**
+ * Points an icon link at a config file. A relative file keeps the link's base
+ * prefix (%BASE_URL% in the template, or the resolved base during a build).
+ */
+function replaceIcon(html: string, rel: string, file: string | undefined): string {
+  if (!file) return html;
+  const pattern = new RegExp(`(<link rel="${rel}" href=")([^"]*)(")`);
+  const match = html.match(pattern);
+  if (!match) return html;
+  const current = match[2];
+  let nextHref: string;
+  if (/^https?:\/\//.test(file)) {
+    nextHref = file;
+  } else {
+    const prefix =
+      current.startsWith("%BASE_URL%") || /^https?:\/\//.test(current)
+        ? "%BASE_URL%"
+        : current.slice(0, current.lastIndexOf("/") + 1);
+    nextHref = `${prefix}${file.replace(/^\//, "")}`;
+  }
+  if (nextHref === current) return html;
+  return html.replace(match[0], `${match[1]}${escapeHtml(nextHref)}${match[3]}`);
 }
 
 /**
@@ -91,6 +139,9 @@ export function applySiteHead(html: string, config: SiteConfig): string {
     config.fontHref,
     (value) => `href="${value}"`,
   );
+
+  next = replaceIcon(next, "icon", config.icons?.favicon);
+  next = replaceIcon(next, "apple-touch-icon", config.icons?.appleTouch);
 
   const css = themeOverrideCss(config);
   if (css && !next.includes('id="site-theme"')) {

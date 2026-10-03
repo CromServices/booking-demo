@@ -25,9 +25,40 @@ export type ThemeTokens = Record<`--${string}`, string>;
 
 export type HeaderArt = {
   src: string;
+  /** Optional art for the firm dark scheme. Unused when theme.dark is false. */
+  dark?: string;
+  /** Intrinsic size, used only to reserve the aspect ratio. CSS sets the height. */
   width: number;
   height: number;
   alt: string;
+};
+
+/** Illustration in the home hero panel. */
+export type HeroArt = {
+  src: string;
+  /** Raster used when the browser cannot show src (for example an SVG). */
+  fallback?: string;
+  width: number;
+  height: number;
+  alt: string;
+};
+
+/** Browser tab and home-screen icons, relative to public/ or absolute URLs. */
+export type SiteIcons = {
+  favicon: string;
+  appleTouch?: string;
+};
+
+/** A local() fallback face, metric-matched so the web font swap barely moves text. */
+export type FallbackFontFace = {
+  family: string;
+  /** Font names for local(), tried in order. */
+  local: readonly string[];
+  weight?: string;
+  sizeAdjust?: string;
+  ascentOverride?: string;
+  descentOverride?: string;
+  lineGapOverride?: string;
 };
 
 /** Light and dark lockups. The dark file is used only when the firm dark scheme is on. */
@@ -83,8 +114,12 @@ export type SiteConfig = {
   /** Replaces the default firm light/dark logo pair. Ignored when headerArt is set. */
   logo?: HeaderLogo;
   /** Optional illustrated hero. Omit for a plain panel. */
-  heroArt?: "saltbush-studio";
+  heroArt?: HeroArt;
+  /** Replaces the icons named in index.html. */
+  icons?: SiteIcons;
   fontHref: string;
+  /** Extra @font-face rules, for example a metric-matched fallback for --font-display. */
+  fallbackFonts?: readonly FallbackFontFace[];
   themeColor: string;
   metaDescription: string;
   titles: {

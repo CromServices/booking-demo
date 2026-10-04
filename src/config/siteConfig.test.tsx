@@ -16,7 +16,7 @@ import { SiteProvider } from "./context";
 import { harbourPress } from "./examples/harbour-press";
 import { saltbush } from "./saltbush";
 import { siteConfig } from "../site.config";
-import { applySiteHead, themeOverrideCss } from "../theme/firm";
+import { applySiteHead, defaultLogo, themeOverrideCss } from "../theme/firm";
 
 const styles = readFileSync(join(process.cwd(), "src/styles.css"), "utf8");
 const indexHtml = readFileSync(join(process.cwd(), "index.html"), "utf8");
@@ -138,6 +138,10 @@ describe("default logo", () => {
     expect(source?.getAttribute("srcset")).toMatch(/^https:\/\//);
     expect(image.getAttribute("src")).toMatch(/^https:\/\//);
     expect(image.getAttribute("src")).not.toBe(source?.getAttribute("srcset"));
+    const pinned = "https://cdn.jsdelivr.net/gh/CromServices/crom-shared@v1.0.2/brand/logo/";
+    expect(image).toHaveAttribute("src", `${pinned}crom-logo-v26-ink.png`);
+    expect(source).toHaveAttribute("srcset", `${pinned}crom-logo-v26-white.png`);
+    expect(defaultLogo.light).not.toMatch(/cromservices\.com\.au|@v1\//);
   });
 });
 

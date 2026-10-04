@@ -1,16 +1,16 @@
 import type { HeaderLogo, SiteConfig, SiteIcons } from "../config/types.ts";
 
 /**
- * Default firm logo. The files are hosted with the Crom Services brand kit.
- * They may not resolve until that kit is published. The starter still renders
- * the picture element so a published file appears without a code change.
+ * Hosted Crom brand files. Move a set by changing one base here.
+ * The logo is pinned to an immutable crom-shared release tag (not a floating @v1),
+ * so a later brand-kit change can't alter or break existing builds.
  */
-/** Hosted Crom brand files. Move a set by changing one base here. */
 export const FIRM_BRAND = {
-  logoBase: "https://cromservices.com.au/brand/logo/",
+  logoBase: "https://cdn.jsdelivr.net/gh/CromServices/crom-shared@v1.0.2/brand/logo/",
   faviconBase: "https://cromservices.github.io/crom-shared/brand/favicon/",
 } as const;
 
+/** Default firm logo, used when a config sets neither headerArt nor logo. */
 export const defaultLogo: HeaderLogo = {
   light: `${FIRM_BRAND.logoBase}crom-logo-v26-ink.png`,
   dark: `${FIRM_BRAND.logoBase}crom-logo-v26-white.png`,

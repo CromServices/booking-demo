@@ -188,7 +188,7 @@ export function AdminPage() {
               {actionError}
             </p>
           ) : null}
-          {ready && visible.length === 0 ? <p>No sample bookings in this view.</p> : null}
+          {ready && visible.length === 0 ? <p>No bookings in this view.</p> : null}
           <div className="booking-groups">
             {groups.map((group) => (
               <section key={group.status} className="status-group" aria-labelledby={`status-${group.status}`}>
@@ -373,7 +373,7 @@ export function AdminPage() {
                 </div>
                 {removeId === service.id ? (
                   <div className="confirm-inline" role="group" aria-label={`Confirm removal of ${service.name}`}>
-                    <p>Remove {service.name} from the sample menu?</p>
+                    <p>Remove {service.name} from the menu?</p>
                     <div className="hero-actions">
                       <button
                         type="button"
@@ -402,14 +402,14 @@ export function AdminPage() {
 
       <section className="reset-panel" aria-labelledby="reset-heading">
         <h2 id="reset-heading">Reset bookings and menu</h2>
-        <p>Clears bookings in this browser and restores the sample services.</p>
+        <p>Clears bookings in this browser and restores the original services.</p>
         {!confirmReset ? (
           <button type="button" className="button button-danger" onClick={() => setConfirmReset(true)}>
             Reset bookings and menu
           </button>
         ) : (
           <div role="group" aria-label="Confirm reset">
-            <p>Restore the original sample bookings and services?</p>
+            <p>Restore the original bookings and services?</p>
             <div className="hero-actions">
               <button
                 type="button"
@@ -423,7 +423,7 @@ export function AdminPage() {
                   })
                 }
               >
-                Restore sample data
+                Restore original data
               </button>
               <button type="button" className="button button-ghost" onClick={() => setConfirmReset(false)}>
                 Keep my changes
@@ -522,7 +522,7 @@ function BookingCard({
           </div>
         ) : null}
         <div>
-          <dt>Sample email</dt>
+          <dt>Email code</dt>
           <dd>{booking.emailVerified ? "Confirmed on screen" : "Not confirmed yet"}</dd>
         </div>
       </dl>

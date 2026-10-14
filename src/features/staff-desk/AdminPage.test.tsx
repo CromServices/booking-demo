@@ -174,7 +174,7 @@ describe("staff desk", () => {
     expect(await screen.findByRole("heading", { name: "Temporary rinse" })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Reset bookings and menu" }));
-    await user.click(screen.getByRole("button", { name: "Restore sample data" }));
+    await user.click(screen.getByRole("button", { name: "Restore original data" }));
     await waitFor(() => {
       expect(screen.queryByRole("heading", { name: "Temporary rinse" })).not.toBeInTheDocument();
     });

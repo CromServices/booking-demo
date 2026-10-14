@@ -23,7 +23,7 @@ export type BookingFormErrors = Partial<{
 export const bookingMessages = {
   name: "Enter the name for this booking.",
   mobile: "Enter an Australian mobile, like 0412 345 678.",
-  email: "Enter an email address so the sample confirmation can be addressed to you.",
+  email: "Enter an email address so the confirmation can be addressed to you.",
   service: "Choose a service.",
   slot: "Choose an open time.",
   notes: "Keep notes to 400 characters or fewer.",

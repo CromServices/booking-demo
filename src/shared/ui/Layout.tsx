@@ -1,7 +1,7 @@
 import { useLayoutEffect, type ReactNode } from "react";
-import { assetSrc } from "../config/assets";
-import { useSiteConfig } from "../config/context";
-import { HashLink } from "../hashRouter";
+import { assetSrc } from "../../features/site-config/assets";
+import { useSiteConfig } from "../../features/site-config/context";
+import { HashLink } from "../routing/hashRouter";
 import { defaultLogo } from "../theme/firm";
 import { CromCredit } from "./CromCredit";
 

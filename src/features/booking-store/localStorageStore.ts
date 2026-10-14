@@ -1,5 +1,5 @@
-import type { ExtraField } from "../config/types";
-import { siteConfig } from "../site.config";
+import type { ExtraField } from "../site-config/types";
+import { siteConfig } from "../../site.config";
 import { createSeed } from "./seed";
 import { MemoryBookingStore } from "./memoryStore";
 import type { Booking, BookingStatus, BookingStore, DemoSnapshot } from "./types";

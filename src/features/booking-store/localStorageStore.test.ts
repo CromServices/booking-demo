@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fixedClock, FIXED_NOW } from "../test/fixtures";
+import { fixedClock, FIXED_NOW } from "../../test/fixtures";
 import { createLocalStorageBookingStore, STORAGE_KEY, type KeyValueStorage } from "./localStorageStore";
 import { MemoryBookingStore } from "./memoryStore";
 import { createSeed, SERVICE_IDS } from "./seed";

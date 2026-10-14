@@ -1,22 +1,22 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { useSiteConfig } from "../config/context";
-import { extraSummary } from "../config/template";
-import { maskEmail, maskMobile } from "../domain/mask";
-import { Field } from "../components/Field";
-import { useDocumentTitle } from "../components/useDocumentTitle";
-import { formatAud, formatDuration, formatSlotLong } from "../domain/format";
-import { calendarWindow } from "../domain/hours";
-import { buildCalendar } from "../domain/slots";
-import { isOnOrAfterStudioDay } from "../domain/time";
+import { useSiteConfig } from "../site-config/context";
+import { extraSummary } from "../site-config/template";
+import { maskEmail, maskMobile } from "./mask";
+import { Field } from "../../shared/ui/Field";
+import { useDocumentTitle } from "../../shared/ui/useDocumentTitle";
+import { formatAud, formatDuration, formatSlotLong } from "../../shared/domain/format";
+import { calendarWindow } from "../../shared/domain/hours";
+import { buildCalendar } from "../../shared/domain/slots";
+import { isOnOrAfterStudioDay } from "../../shared/domain/time";
 import {
   dollarsToCents,
   hasErrors,
   validateServiceDraft,
   type ServiceDraft,
   type ServiceFieldErrors,
-} from "../domain/validation";
-import { useBookingStore, useSnapshot } from "../store/context";
-import type { Booking, BookingStatus } from "../store/types";
+} from "../../shared/domain/validation";
+import { useBookingStore, useSnapshot } from "../booking-store/context";
+import type { Booking, BookingStatus } from "../booking-store/types";
 
 const EMPTY_DRAFT: ServiceDraft = {
   name: "",

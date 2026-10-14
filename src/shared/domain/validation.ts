@@ -1,4 +1,4 @@
-import type { ExtraField } from "../config/types";
+import type { ExtraField } from "../../features/site-config/types";
 
 export type BookingFormValues = {
   name: string;

@@ -1,11 +1,11 @@
-import { assetSrc, imageType } from "../config/assets";
-import { fillTemplate } from "../config/template";
-import { useSiteConfig } from "../config/context";
-import type { HeroArt } from "../config/types";
-import { formatAud, formatDuration } from "../domain/format";
-import { HashLink } from "../hashRouter";
-import { useDocumentTitle } from "../components/useDocumentTitle";
-import { useSnapshot } from "../store/context";
+import { assetSrc, imageType } from "../site-config/assets";
+import { fillTemplate } from "../site-config/template";
+import { useSiteConfig } from "../site-config/context";
+import type { HeroArt } from "../site-config/types";
+import { formatAud, formatDuration } from "../../shared/domain/format";
+import { HashLink } from "../../shared/routing/hashRouter";
+import { useDocumentTitle } from "../../shared/ui/useDocumentTitle";
+import { useSnapshot } from "../booking-store/context";
 
 function HeroImage({ art }: { art: HeroArt }) {
   const image = (

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import type { CalendarDay } from "../domain/slots";
+import type { CalendarDay } from "../../shared/domain/slots";
 
 export function DayStrip({
   days,

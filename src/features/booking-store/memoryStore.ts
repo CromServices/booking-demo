@@ -1,14 +1,14 @@
-import type { SiteConfig } from "../config/types";
-import { siteConfig } from "../site.config";
-import { generateConfirmationCode } from "../domain/code";
-import { calendarWindow } from "../domain/hours";
-import { buildCalendar } from "../domain/slots";
+import type { SiteConfig } from "../site-config/types";
+import { siteConfig } from "../../site.config";
+import { generateConfirmationCode } from "./code";
+import { calendarWindow } from "../../shared/domain/hours";
+import { buildCalendar } from "../../shared/domain/slots";
 import {
   firstErrorMessage,
   hasErrors,
   normalizeAuMobile,
   validateBookingForm,
-} from "../domain/validation";
+} from "../../shared/domain/validation";
 import { createSeed } from "./seed";
 import type {
   Booking,

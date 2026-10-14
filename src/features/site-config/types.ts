@@ -1,4 +1,4 @@
-import type { BookingStatus, Service } from "../store/types";
+import type { BookingStatus, Service } from "../booking-store/types";
 
 /** A question the booking form asks in addition to name, mobile, email, and notes. */
 export type ExtraField = {

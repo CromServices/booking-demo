@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react";
-import { siteConfig } from "../site.config";
+import { siteConfig } from "../../site.config";
 import type { SiteConfig } from "./types";
 
 const SiteConfigContext = createContext<SiteConfig>(siteConfig);

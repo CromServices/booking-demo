@@ -5,7 +5,7 @@ import type { Plugin, UserConfig } from "vite";
 import { harbourPress } from "./examples/harbour-press";
 
 // Stand-in for whatever src/site.config.ts points at, to prove vite.config.ts follows it.
-vi.mock("../site.config", async () => {
+vi.mock("../../site.config", async () => {
   const { harbourPress: base } = await import("./examples/harbour-press");
   return {
     siteConfig: {
@@ -23,7 +23,7 @@ const indexHtml = readFileSync(join(process.cwd(), "index.html"), "utf8");
 
 async function headFor(mode: string): Promise<string> {
   // vite.config.ts is Node build code outside the app tsconfig, so load it by path at runtime.
-  const configPath = "../../vite.config.ts";
+  const configPath = "../../../vite.config.ts";
   const { default: factory } = await import(/* @vite-ignore */ configPath);
   const config = (typeof factory === "function"
     ? await factory({ mode, command: "build", isSsrBuild: false, isPreview: false })

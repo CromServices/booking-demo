@@ -1,4 +1,4 @@
-import { siteConfig } from "../site.config";
+import { siteConfig } from "../../site.config";
 
 /** Opening windows in minutes from midnight, studio time. Index 0 is Sunday. */
 export const OPENING_HOURS: Record<number, { openMin: number; closeMin: number } | null> = {

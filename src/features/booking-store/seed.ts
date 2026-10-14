@@ -1,7 +1,7 @@
-import type { SiteConfig } from "../config/types";
-import { siteConfig } from "../site.config";
-import { buildCalendar, type SlotBooking } from "../domain/slots";
-import { studioMinutes } from "../domain/time";
+import type { SiteConfig } from "../site-config/types";
+import { siteConfig } from "../../site.config";
+import { buildCalendar, type SlotBooking } from "../../shared/domain/slots";
+import { studioMinutes } from "../../shared/domain/time";
 import type { Booking, DemoSnapshot } from "./types";
 
 export const SERVICE_IDS = {

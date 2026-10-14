@@ -1,23 +1,23 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useSiteConfig } from "../config/context";
-import type { ExtraField } from "../config/types";
-import { fillTemplate } from "../config/template";
-import { DayStrip } from "../components/DayStrip";
-import { Field } from "../components/Field";
-import { useDocumentTitle } from "../components/useDocumentTitle";
-import { formatAud, formatClock, formatDuration, formatSlotLong } from "../domain/format";
-import { calendarWindow } from "../domain/hours";
-import { buildCalendar } from "../domain/slots";
-import { studioMinutes } from "../domain/time";
+import { useSiteConfig } from "../site-config/context";
+import type { ExtraField } from "../site-config/types";
+import { fillTemplate } from "../site-config/template";
+import { DayStrip } from "./DayStrip";
+import { Field } from "../../shared/ui/Field";
+import { useDocumentTitle } from "../../shared/ui/useDocumentTitle";
+import { formatAud, formatClock, formatDuration, formatSlotLong } from "../../shared/domain/format";
+import { calendarWindow } from "../../shared/domain/hours";
+import { buildCalendar } from "../../shared/domain/slots";
+import { studioMinutes } from "../../shared/domain/time";
 import {
   hasErrors,
   validateBookingForm,
   type BookingFormErrors,
   type BookingFormValues,
-} from "../domain/validation";
-import { HashLink, useHashLocation } from "../hashRouter";
-import { useBookingStore, useSnapshot } from "../store/context";
-import type { Booking } from "../store/types";
+} from "../../shared/domain/validation";
+import { HashLink, useHashLocation } from "../../shared/routing/hashRouter";
+import { useBookingStore, useSnapshot } from "../booking-store/context";
+import type { Booking } from "../booking-store/types";
 
 function emptyValues(fields: readonly ExtraField[]): BookingFormValues {
   return {

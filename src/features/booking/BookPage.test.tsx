@@ -1,10 +1,10 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
-import { saltbush } from "../config/saltbush";
-import { bookingMessages } from "../domain/validation";
-import { makeStore } from "../test/fixtures";
-import { renderAt } from "../test/render";
+import { saltbush } from "../site-config/saltbush";
+import { bookingMessages } from "../../shared/domain/validation";
+import { makeStore } from "../../test/fixtures";
+import { renderAt } from "../../test/render";
 import { BookPage } from "./BookPage";
 
 

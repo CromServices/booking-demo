@@ -27,7 +27,7 @@ The dev server uses the GitHub Pages base path, so open `http://localhost:5173/b
 
 ## Reuse for a new job
 
-Copy `src/config/saltbush.ts`, or start from `src/config/examples/harbour-press.ts` if you want the firm skin. Edit the business, services, hours, and extra fields. Brand art and type are config too: `headerArt`, `heroArt`, `icons`, `fontHref`, `fallbackFonts`, and the theme tokens (`--font-display`, heading weights, `--lockup-height`). Put the files in `public/`. Point the export in `src/site.config.ts` at your file, then push to `main`. The page head (title, description, theme colour, font link, icons) follows the same export.
+Copy `src/features/site-config/saltbush.ts`, or start from `src/features/site-config/examples/harbour-press.ts` if you want the firm skin. Edit the business, services, hours, and extra fields. Brand art and type are config too: `headerArt`, `heroArt`, `icons`, `fontHref`, `fallbackFonts`, and the theme tokens (`--font-display`, heading weights, `--lockup-height`). Put the files in `public/`. Point the export in `src/site.config.ts` at your file, then push to `main`. The page head (title, description, theme colour, font link, icons) follows the same export.
 
 Icons: a config without `icons` gets the hosted Crom Services icon. That icon is for demos and preview builds only. A real client site must ship its own icon before go-live. If the client has no logo, Brand can make an initial-letter icon.
 
@@ -45,7 +45,7 @@ Hash routes keep deep links working on GitHub Pages:
 
 ## Swappable store
 
-Pages never read `localStorage` themselves. They call a `BookingStore` (`src/store/types.ts`):
+Pages never read `localStorage` themselves. They call a `BookingStore` (`src/features/booking-store/types.ts`):
 
 - `listServices`, `listBookings`
 - `createBooking`, `confirmBooking`, `updateBooking`, `deleteBooking`
@@ -60,3 +60,13 @@ Pages never read `localStorage` themselves. They call a `BookingStore` (`src/sto
 ## Deploy
 
 `.github/workflows/pages.yml` runs tests and a production build on pull requests. A push to `main` uploads the `dist` folder and deploys it with GitHub Pages (`actions/deploy-pages`). The Vite `base` is `/booking-demo/`.
+
+## Folder layout (one folder per feature)
+
+- `src/features/home` – home page
+- `src/features/booking` – booking calendar and form (`#/book`)
+- `src/features/staff-desk` – staff desk (`#/admin`) and email masking
+- `src/features/booking-store` – the `BookingStore` adapters, seed data, confirmation codes
+- `src/features/site-config` – typed site configs (Saltbush, Harbour Press example) and head tests
+- `src/features/not-found` – not-found page
+- `src/shared` – UI pieces, routing, date/slot/validation rules and the firm theme used by several features

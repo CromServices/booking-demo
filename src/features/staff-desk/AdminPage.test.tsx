@@ -1,10 +1,10 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { fixedClock, FIXED_NOW, makeStore } from "../test/fixtures";
-import { renderAt } from "../test/render";
-import { createLocalStorageBookingStore, STORAGE_KEY } from "../store/localStorageStore";
-import { SERVICE_IDS } from "../store/seed";
+import { fixedClock, FIXED_NOW, makeStore } from "../../test/fixtures";
+import { renderAt } from "../../test/render";
+import { createLocalStorageBookingStore, STORAGE_KEY } from "../booking-store/localStorageStore";
+import { SERVICE_IDS } from "../booking-store/seed";
 import { AdminPage } from "./AdminPage";
 
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { saltbush } from "../config/saltbush";
+import { saltbush } from "../../features/site-config/saltbush";
 import {
   bookingMessages,
   dollarsToCents,

@@ -1,13 +1,13 @@
 import { useMemo } from "react";
-import { Layout } from "./components/Layout";
-import { HashRouter, useHashLocation } from "./hashRouter";
-import { AdminPage } from "./pages/AdminPage";
-import { BookPage } from "./pages/BookPage";
-import { HomePage } from "./pages/HomePage";
-import { NotFoundPage } from "./pages/NotFoundPage";
-import { BookingStoreProvider } from "./store/context";
-import { createLocalStorageBookingStore } from "./store/localStorageStore";
-import type { BookingStore } from "./store/types";
+import { Layout } from "./shared/ui/Layout";
+import { HashRouter, useHashLocation } from "./shared/routing/hashRouter";
+import { AdminPage } from "./features/staff-desk/AdminPage";
+import { BookPage } from "./features/booking/BookPage";
+import { HomePage } from "./features/home/HomePage";
+import { NotFoundPage } from "./features/not-found/NotFoundPage";
+import { BookingStoreProvider } from "./features/booking-store/context";
+import { createLocalStorageBookingStore } from "./features/booking-store/localStorageStore";
+import type { BookingStore } from "./features/booking-store/types";
 
 function AppRoutes() {
   const { path } = useHashLocation();

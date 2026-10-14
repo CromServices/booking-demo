@@ -1,5 +1,5 @@
-import { createSeed } from "../store/seed";
-import { MemoryBookingStore } from "../store/memoryStore";
+import { createSeed } from "../features/booking-store/seed";
+import { MemoryBookingStore } from "../features/booking-store/memoryStore";
 
 export const FIXED_NOW = new Date("2026-10-05T01:00:00.000Z");
 

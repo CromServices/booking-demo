@@ -1,6 +1,6 @@
-import { useSiteConfig } from "../config/context";
-import { HashLink } from "../hashRouter";
-import { useDocumentTitle } from "../components/useDocumentTitle";
+import { useSiteConfig } from "../site-config/context";
+import { HashLink } from "../../shared/routing/hashRouter";
+import { useDocumentTitle } from "../../shared/ui/useDocumentTitle";
 
 export function NotFoundPage() {
   const config = useSiteConfig();

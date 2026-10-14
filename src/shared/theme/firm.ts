@@ -1,4 +1,4 @@
-import type { HeaderLogo, SiteConfig, SiteIcons } from "../config/types.ts";
+import type { HeaderLogo, SiteConfig, SiteIcons } from "../../features/site-config/types.ts";
 
 /**
  * Default firm logo. The files are hosted with the Crom Services brand kit.

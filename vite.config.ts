@@ -2,13 +2,13 @@ import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vitest/config";
-import { harbourPress } from "./src/config/examples/harbour-press.ts";
+import { harbourPress } from "./src/features/site-config/examples/harbour-press.ts";
 import { siteConfig } from "./src/site.config.ts";
-import { applySiteHead } from "./src/theme/firm.ts";
+import { applySiteHead } from "./src/shared/theme/firm.ts";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const siteConfigPath = path.join(root, "src/site.config.ts");
-const exampleEntryPath = path.join(root, "src/config/examples/harbour-press-entry.ts");
+const exampleEntryPath = path.join(root, "src/features/site-config/examples/harbour-press-entry.ts");
 
 function exampleConfigPlugin(enabled: boolean): Plugin {
   return {

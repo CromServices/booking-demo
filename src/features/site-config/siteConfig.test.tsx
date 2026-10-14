@@ -209,7 +209,7 @@ describe("extra fields", () => {
     await user.type(screen.getByLabelText("Email"), "test.visitor@example.com");
     await user.click(screen.getByRole("button", { name: "Request this time" }));
 
-    expect(await screen.findByRole("heading", { name: "Simulated confirmation email" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Your confirmation code" })).toBeInTheDocument();
     const saved = (await store.listBookings()).find((booking) => booking.customerName === "Test Visitor");
     expect(saved?.extras).toEqual({ jobName: "Recital", stock: "Cotton" });
     expect(calendarWindow(config).horizonDays).toBe(14);

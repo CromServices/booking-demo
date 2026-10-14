@@ -57,7 +57,7 @@ describe("booking form", () => {
     );
   });
 
-  it("walks the simulated confirmation code and rejects a mismatch", async () => {
+  it("walks the confirmation code and rejects a mismatch", async () => {
     const user = userEvent.setup();
     const store = makeStore();
     renderAt("#/book", store, <BookPage />);
@@ -72,29 +72,29 @@ describe("booking form", () => {
     await user.type(screen.getByLabelText("Notes"), "Walkthrough sample");
     await user.click(screen.getByRole("button", { name: "Request this time" }));
 
-    const email = await screen.findByRole("article", { name: "Simulated confirmation email" });
-    const codeField = screen.getByLabelText("Code from the sample email");
+    const email = await screen.findByRole("article", { name: "Confirmation email" });
+    const codeField = screen.getByLabelText("Code from your email");
     await waitFor(() => expect(codeField).toHaveFocus());
-    expect(email).toHaveTextContent(/not sent/i);
+    expect(email).toHaveTextContent("This email was not delivered");
     expect(email).toHaveTextContent("test.visitor@example.com");
     expect(email).toHaveTextContent("Noodle (Small)");
     const code = within(email).getByRole("status", { name: "Confirmation code" }).textContent ?? "";
     expect(code).toMatch(/^\d{6}$/);
 
     const wrong = code === "000000" ? "000001" : "000000";
-    await user.type(screen.getByLabelText("Code from the sample email"), wrong);
+    await user.type(screen.getByLabelText("Code from your email"), wrong);
     await user.click(screen.getByRole("button", { name: "Confirm with code" }));
     expect(
       (await screen.findAllByRole("alert")).some(
-        (element) => element.textContent === "That code does not match the sample email.",
+        (element) => element.textContent === "That code does not match your email.",
       ),
     ).toBe(true);
 
     const bookings = await store.listBookings();
     expect(bookings.find((booking) => booking.customerName === "Test Visitor")?.emailVerified).toBe(false);
 
-    await user.clear(screen.getByLabelText("Code from the sample email"));
-    await user.type(screen.getByLabelText("Code from the sample email"), code);
+    await user.clear(screen.getByLabelText("Code from your email"));
+    await user.type(screen.getByLabelText("Code from your email"), code);
     await user.click(screen.getByRole("button", { name: "Confirm with code" }));
     expect(await screen.findByRole("heading", { name: "Request lodged" })).toBeInTheDocument();
     expect(screen.getByText(/No email was sent/)).toBeInTheDocument();

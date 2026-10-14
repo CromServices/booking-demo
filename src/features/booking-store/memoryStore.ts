@@ -111,15 +111,15 @@ export class MemoryBookingStore implements BookingStore {
   async confirmBooking(id: string, code: string): Promise<Booking> {
     const booking = this.findBooking(id);
     if (booking.status === "cancelled") {
-      throw new StoreError("This sample booking has been cancelled.");
+      throw new StoreError("This booking has been cancelled.");
     }
     if (booking.emailVerified) return structuredClone(booking);
     const entered = code.replace(/\D/g, "");
     if (entered.length !== 6) {
-      throw new StoreError("Enter the 6-digit code from the sample email.");
+      throw new StoreError("Enter the 6-digit code from your email.");
     }
     if (entered !== booking.confirmationCode) {
-      throw new StoreError("That code does not match the sample email.");
+      throw new StoreError("That code does not match your email.");
     }
     return this.replaceBooking({ ...booking, emailVerified: true });
   }
@@ -165,7 +165,7 @@ export class MemoryBookingStore implements BookingStore {
 
     if (input.id) {
       const existing = this.data.services.find((service) => service.id === input.id);
-      if (!existing) throw new StoreError("That service is no longer in the sample list.");
+      if (!existing) throw new StoreError("That service is no longer on the menu.");
       const updated: Service = {
         ...existing,
         name,
@@ -252,7 +252,7 @@ export class MemoryBookingStore implements BookingStore {
         })),
     });
     const slot = calendar.flatMap((day) => day.slots).find((item) => item.start === slotStart);
-    if (!slot) throw new StoreError("That time is outside the sample calendar.");
+    if (!slot) throw new StoreError("That time is outside the calendar.");
     if (!slot.available) throw new StoreError("That time has already been taken.");
   }
 

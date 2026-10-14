@@ -55,7 +55,7 @@ describe("site config", () => {
     expect(css).not.toContain("prefers-color-scheme");
     const head = applySiteHead(indexHtml, saltbush);
     expect(head).toContain('data-color-scheme="light"');
-    expect(head).toContain("<title>Saltbush Dog Grooming · Demo</title>");
+    expect(head).toContain("<title>Saltbush Dog Grooming</title>");
     expect(head).toContain("--footer-bg: #ebe4d8");
     expect(head).toContain("family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Outfit");
     expect(head).toContain("display=swap");
@@ -98,7 +98,7 @@ describe("site config", () => {
     expect(styles).not.toContain("var(--accent-green)");
     const exampleHead = applySiteHead(indexHtml, harbourPress);
     expect(exampleHead).not.toContain('data-color-scheme="light"');
-    expect(exampleHead).toContain("<title>Harbour Press · Demo</title>");
+    expect(exampleHead).toContain("<title>Harbour Press</title>");
     expect(exampleHead).toContain("family=Inter");
   });
 });

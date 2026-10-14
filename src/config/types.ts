@@ -137,10 +137,10 @@ export type SiteConfig = {
     admin: string;
     notFound: string;
   };
-  banner: string;
+  banner?: string;
   nav: { home: string; book: string; admin: string };
   footerEmail: string;
-  footerNote: string;
+  footerNote?: string;
   schedule: {
     /** Index 0 is Sunday. */
     days: readonly [DayWindow, DayWindow, DayWindow, DayWindow, DayWindow, DayWindow, DayWindow];

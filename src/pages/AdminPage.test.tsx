@@ -7,8 +7,6 @@ import { createLocalStorageBookingStore, STORAGE_KEY } from "../store/localStora
 import { SERVICE_IDS } from "../store/seed";
 import { AdminPage } from "./AdminPage";
 
-const BANNER =
-  "Demo site by Crom Services. Not a real business. Sample data only. Emails are simulated.";
 
 function renderAdmin() {
   const store = makeStore();
@@ -16,12 +14,12 @@ function renderAdmin() {
   return store;
 }
 
-describe("demo desk", () => {
+describe("staff desk", () => {
   it("approves, cancels, and reschedules upcoming bookings", async () => {
     const user = userEvent.setup();
     const store = renderAdmin();
-    expect(await screen.findByRole("heading", { name: "Demo desk" })).toBeInTheDocument();
-    expect(screen.getByRole("note")).toHaveTextContent(BANNER);
+    expect(await screen.findByRole("heading", { name: "Staff desk" })).toBeInTheDocument();
+    expect(screen.queryByRole("note")).toBeNull();
 
     const quinn = () => screen.getByRole("article", { name: /Booking for Sam Okafor at/ });
     const before = quinn().getAttribute("aria-label");
@@ -142,7 +140,7 @@ describe("demo desk", () => {
   it("adds, edits, and removes a service, then restores the sample data", async () => {
     const user = userEvent.setup();
     const store = renderAdmin();
-    await screen.findByRole("heading", { name: "Demo desk" });
+    await screen.findByRole("heading", { name: "Staff desk" });
 
     await user.type(screen.getByLabelText("Service name"), "Paw balm");
     await user.type(screen.getByLabelText("Short description"), "A sample add-on.");
@@ -175,7 +173,7 @@ describe("demo desk", () => {
     await user.click(screen.getByRole("button", { name: "Add service" }));
     expect(await screen.findByRole("heading", { name: "Temporary rinse" })).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Reset demo data" }));
+    await user.click(screen.getByRole("button", { name: "Reset bookings and menu" }));
     await user.click(screen.getByRole("button", { name: "Restore sample data" }));
     await waitFor(() => {
       expect(screen.queryByRole("heading", { name: "Temporary rinse" })).not.toBeInTheDocument();

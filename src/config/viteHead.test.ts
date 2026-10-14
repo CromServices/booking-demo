@@ -12,8 +12,8 @@ vi.mock("../site.config", async () => {
       ...base,
       id: "new-client",
       businessName: "New Client",
-      titles: { ...base.titles, home: "New Client · Demo" },
-      metaDescription: "New Client demo.",
+      titles: { ...base.titles, home: "New Client" },
+      metaDescription: "New Client bookings.",
       icons: [{ rel: "icon", href: "new-client.svg", type: "image/svg+xml" }],
     },
   };
@@ -36,8 +36,8 @@ async function headFor(mode: string): Promise<string> {
 describe("vite head", () => {
   it("fills the head from src/site.config.ts", async () => {
     const head = await headFor("production");
-    expect(head).toContain("<title>New Client · Demo</title>");
-    expect(head).toContain('content="New Client demo."');
+    expect(head).toContain("<title>New Client</title>");
+    expect(head).toContain('content="New Client bookings."');
     expect(head).toContain('<link rel="icon" href="/booking-demo/new-client.svg" type="image/svg+xml" />');
     expect(head).not.toMatch(/saltbush/i);
   });

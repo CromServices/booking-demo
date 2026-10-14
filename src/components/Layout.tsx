@@ -77,9 +77,11 @@ export function Layout({ children }: { children: ReactNode }) {
       <a className="skip" href="#content">
         Skip to content
       </a>
-      <div className="demo-banner" role="note">
-        <p className="wrap">{config.banner}</p>
-      </div>
+      {config.banner ? (
+        <div className="demo-banner" role="note">
+          <p className="wrap">{config.banner}</p>
+        </div>
+      ) : null}
       <header className="site-header">
         <div className="wrap header-row">
           <a className="brand" href="#/">
@@ -105,7 +107,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <p>
             <a href={`mailto:${config.footerEmail}`}>{config.footerEmail}</a>
           </p>
-          <p>{config.footerNote}</p>
+          {config.footerNote ? <p>{config.footerNote}</p> : null}
         </div>
       </footer>
     </>

@@ -401,11 +401,11 @@ export function AdminPage() {
       </div>
 
       <section className="reset-panel" aria-labelledby="reset-heading">
-        <h2 id="reset-heading">Reset demo data</h2>
+        <h2 id="reset-heading">Reset bookings and menu</h2>
         <p>Clears bookings in this browser and restores the sample services.</p>
         {!confirmReset ? (
           <button type="button" className="button button-danger" onClick={() => setConfirmReset(true)}>
-            Reset demo data
+            Reset bookings and menu
           </button>
         ) : (
           <div role="group" aria-label="Confirm reset">

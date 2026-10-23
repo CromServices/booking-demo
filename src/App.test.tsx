@@ -17,6 +17,7 @@ describe("hash routing", () => {
     expect(credit.querySelector("img")?.getAttribute("src")).toMatch(
       /^https:\/\/cromservices\.com\.au\/brand\/credit\/crom-credit-mark-ink@1x\.png$/,
     );
+    expect(screen.getByText("Fictional business.")).toBeInTheDocument();
   });
 
   it("shows the hero art as an SVG with a raster fallback", async () => {

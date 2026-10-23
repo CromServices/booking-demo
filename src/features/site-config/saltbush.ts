@@ -144,6 +144,7 @@ export const saltbush = {
   },
   nav: { home: "Home", book: "Book", admin: "Staff desk" },
   footerEmail: "cromservices@gmail.com",
+  footerNote: "Fictional business.",
   schedule: {
     days: [null, open, open, open, open, open, saturday],
     horizonDays: 14,

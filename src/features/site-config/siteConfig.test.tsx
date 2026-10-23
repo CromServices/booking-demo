@@ -42,6 +42,8 @@ describe("site config", () => {
     expect(harbourPress.businessName).toBe("Harbour Press");
     expect("theme" in harbourPress).toBe(false);
     expect(harbourPress.credit).toBe("system");
+    expect(harbourPress.footerNote).toBe("Fictional business.");
+    expect(saltbush.footerNote).toBe("Fictional business.");
     expect("headerArt" in harbourPress).toBe(false);
     expect(harbourPress.storage.key).not.toBe(saltbush.storage.key);
     expect(harbourPress.extraFields.some((field) => /dog/i.test(field.id + field.label))).toBe(false);

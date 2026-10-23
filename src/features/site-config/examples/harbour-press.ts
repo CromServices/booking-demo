@@ -24,6 +24,7 @@ export const harbourPress = {
   },
   nav: { home: "Home", book: "Book", admin: "Staff desk" },
   footerEmail: "cromservices@gmail.com",
+  footerNote: "Fictional business.",
   schedule: {
     days: [null, weekday, weekday, weekday, weekday, weekday, saturday],
     horizonDays: 14,

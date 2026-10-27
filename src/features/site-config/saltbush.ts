@@ -296,7 +296,7 @@ export const saltbush = {
       "The staff desk approves, moves, or cancels the request.",
     ],
     visitHeading: "The studio",
-    visitBody: "7 Quokka Dune Lane, Hillarys WA 6025",
+    visitBody: "Australia",
   },
   book: {
     eyebrow: "Online booking",
